@@ -16,6 +16,7 @@ export const pt = {
   },
   NAV: {
     PORTAL_TITLE: 'Portal de Gestão',
+    DASHBOARD: 'Dashboard Analítico',
     PIPELINE: 'Funil de Vendas',
     CUSTOMERS: 'Clientes & Contas',
     CUSTOMER_LISTS: 'Listas & Disparo',
@@ -172,5 +173,20 @@ export const pt = {
     VALIDATION_NEW_PASSWORD_SAME: 'A nova senha deve ser diferente da atual',
     VALIDATION_CONFIRM_PASSWORD_REQUIRED: 'A confirmação de senha é obrigatória',
     VALIDATION_PASSWORDS_MISMATCH: 'As senhas não conferem',
+  },
+  DASHBOARD: {
+    TITLE: 'Dashboard Analítico',
+    SUBTITLE: 'Monitore o desempenho comercial e crie gráficos dinâmicos personalizados para todas as entidades do CRM.',
+    ADD_GRAPH: 'Adicionar Gráfico',
+    RESET_DEFAULTS: 'Restaurar Padrão',
+    REFRESH: 'Atualizar',
+    TOTAL_PIPELINE: 'Pipeline Total',
+    WEIGHTED_REVENUE: 'Receita Ponderada',
+    ACTIVE_CUSTOMERS: 'Clientes Ativos',
+    CUSTOMER_LISTS: 'Listas de Clientes',
+    TOTAL_ACTIVITIES: 'Atividades Registradas',
+    EMPTY_TITLE: 'Nenhum gráfico configurado no momento',
+    EMPTY_SUBTITLE: 'Você pode adicionar gráficos customizados ou restaurar os painéis analíticos padrão.',
+    CREATE_FIRST_GRAPH: 'Criar Primeiro Gráfico',
   },
 };

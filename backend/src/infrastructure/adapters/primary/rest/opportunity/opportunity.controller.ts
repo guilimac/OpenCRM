@@ -12,6 +12,7 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { CreateOpportunityUseCase } from '../../../../../core/application/opportunity/create-opportunity.use-case.js';
 import { UpdateOpportunityStageUseCase } from '../../../../../core/application/opportunity/update-opportunity-stage.use-case.js';
 import { GetPipelineSummaryUseCase } from '../../../../../core/application/opportunity/get-pipeline-summary.use-case.js';
+import { ListOpportunitiesUseCase } from '../../../../../core/application/opportunity/list-opportunities.use-case.js';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard.js';
 import { CurrentUser } from '../decorators/current-user.decorator.js';
 import { type AccessTokenPayload } from '../../../../../core/application/common/ports/token.port.js';
@@ -29,6 +30,7 @@ export class OpportunityController {
     private readonly createOpportunityUseCase: CreateOpportunityUseCase,
     private readonly updateOpportunityStageUseCase: UpdateOpportunityStageUseCase,
     private readonly getPipelineSummaryUseCase: GetPipelineSummaryUseCase,
+    private readonly listOpportunitiesUseCase: ListOpportunitiesUseCase,
   ) {}
 
   @Post()
@@ -104,5 +106,33 @@ export class OpportunityController {
       throw new BadRequestException(result.error);
     }
     return result.getValue();
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'List all opportunities for the organization' })
+  @ApiResponse({ status: 200, description: 'Opportunities retrieved successfully' })
+  async list(@CurrentUser() user: AccessTokenPayload) {
+    const result = await this.listOpportunitiesUseCase.execute(user.orgId);
+    if (result.isFailure) {
+      throw new BadRequestException(result.error);
+    }
+    return result.getValue().map((opp) => ({
+      id: opp.id,
+      title: opp.title,
+      customerId: opp.customerId,
+      ownerId: opp.ownerId,
+      amount: opp.monetaryValue.amount,
+      currency: opp.monetaryValue.currency,
+      exchangeRateToBrl: opp.monetaryValue.exchangeRateToBrl,
+      amountInBrl: opp.monetaryValue.amountInBrl,
+      stage: opp.stage.value,
+      probability: opp.stage.probability,
+      weightedValueInBrl: opp.weightedValueInBrl,
+      expectedCloseDate: opp.expectedCloseDate,
+      closedAt: opp.closedAt,
+      lossReason: opp.lossReason,
+      createdAt: opp.createdAt,
+      updatedAt: opp.updatedAt,
+    }));
   }
 }

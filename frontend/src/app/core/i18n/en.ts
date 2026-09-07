@@ -16,6 +16,7 @@ export const en = {
   },
   NAV: {
     PORTAL_TITLE: 'Management Portal',
+    DASHBOARD: 'Analytics Dashboard',
     PIPELINE: 'Sales Pipeline',
     CUSTOMERS: 'Customers & Accounts',
     CUSTOMER_LISTS: 'Lists & Mass Mail',
@@ -172,5 +173,20 @@ export const en = {
     VALIDATION_NEW_PASSWORD_SAME: 'New password must be different from current password',
     VALIDATION_CONFIRM_PASSWORD_REQUIRED: 'Password confirmation is required',
     VALIDATION_PASSWORDS_MISMATCH: 'Passwords do not match',
+  },
+  DASHBOARD: {
+    TITLE: 'Analytics Dashboard',
+    SUBTITLE: 'Monitor sales performance and build custom dynamic charts across all CRM entities.',
+    ADD_GRAPH: 'Add Chart',
+    RESET_DEFAULTS: 'Reset to Defaults',
+    REFRESH: 'Refresh',
+    TOTAL_PIPELINE: 'Total Pipeline',
+    WEIGHTED_REVENUE: 'Weighted Revenue',
+    ACTIVE_CUSTOMERS: 'Active Customers',
+    CUSTOMER_LISTS: 'Customer Lists',
+    TOTAL_ACTIVITIES: 'Logged Activities',
+    EMPTY_TITLE: 'No charts currently configured',
+    EMPTY_SUBTITLE: 'You can create custom charts or restore the default analytical panels.',
+    CREATE_FIRST_GRAPH: 'Create First Chart',
   },
 };

@@ -6,6 +6,7 @@ import { TypeOrmOpportunityRepository } from '../adapters/secondary/persistence/
 import { CreateOpportunityUseCase } from '../../core/application/opportunity/create-opportunity.use-case.js';
 import { UpdateOpportunityStageUseCase } from '../../core/application/opportunity/update-opportunity-stage.use-case.js';
 import { GetPipelineSummaryUseCase } from '../../core/application/opportunity/get-pipeline-summary.use-case.js';
+import { ListOpportunitiesUseCase } from '../../core/application/opportunity/list-opportunities.use-case.js';
 import { OpportunityController } from '../adapters/primary/rest/opportunity/opportunity.controller.js';
 
 @Module({
@@ -19,6 +20,7 @@ import { OpportunityController } from '../adapters/primary/rest/opportunity/oppo
     CreateOpportunityUseCase,
     UpdateOpportunityStageUseCase,
     GetPipelineSummaryUseCase,
+    ListOpportunitiesUseCase,
   ],
   exports: [OPPORTUNITY_REPOSITORY_PORT],
 })

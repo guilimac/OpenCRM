@@ -36,6 +36,14 @@ export class TypeOrmInteractionRepository implements IInteractionRepository {
     return orms.map((orm) => InteractionMapper.toDomain(orm));
   }
 
+  async findAllInOrg(orgId: string): Promise<Interaction[]> {
+    const orms = await this.repo.find({
+      where: { orgId },
+      order: { createdAt: 'DESC' },
+    });
+    return orms.map((orm) => InteractionMapper.toDomain(orm));
+  }
+
   async save(interaction: Interaction): Promise<void> {
     const orm = InteractionMapper.toOrm(interaction);
     await this.repo.save(orm);

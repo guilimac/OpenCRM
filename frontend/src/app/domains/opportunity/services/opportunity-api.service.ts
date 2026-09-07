@@ -17,6 +17,10 @@ export class OpportunityApiService {
     return this.http.get<PipelineSummaryResponse>(`${this.baseUrl}/pipeline-summary`);
   }
 
+  list(): Observable<OpportunityItem[]> {
+    return this.http.get<OpportunityItem[]>(this.baseUrl);
+  }
+
   create(data: CreateOpportunityForm): Observable<OpportunityItem> {
     return this.http.post<OpportunityItem>(this.baseUrl, data);
   }

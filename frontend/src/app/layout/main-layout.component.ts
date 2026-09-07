@@ -52,6 +52,16 @@ import { ChangePasswordDialogComponent } from '../core/auth/features/change-pass
         <mat-nav-list class="nav-list">
           <a
             mat-list-item
+            routerLink="/dashboard"
+            routerLinkActive="active-link"
+            (click)="isMobile() && drawer.close()"
+          >
+            <mat-icon matListItemIcon>dashboard</mat-icon>
+            <span matListItemTitle>{{ 'NAV.DASHBOARD' | translate }}</span>
+          </a>
+
+          <a
+            mat-list-item
             routerLink="/pipeline"
             routerLinkActive="active-link"
             (click)="isMobile() && drawer.close()"

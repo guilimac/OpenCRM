@@ -39,8 +39,15 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'pipeline',
+        redirectTo: 'dashboard',
         pathMatch: 'full',
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./domains/dashboard/features/dashboard-view/dashboard-view.component').then(
+            (m) => m.DashboardViewComponent,
+          ),
       },
       {
         path: 'pipeline',

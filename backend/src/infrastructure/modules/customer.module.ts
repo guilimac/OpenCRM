@@ -21,8 +21,10 @@ import {
   GetCustomerListByIdUseCase,
   SendMassEmailUseCase,
 } from '../../core/application/customer-list/customer-list.use-cases.js';
+import { ListInteractionsUseCase } from '../../core/application/interaction/list-interactions.use-case.js';
 import { CustomerController } from '../adapters/primary/rest/customer/customer.controller.js';
 import { CustomerListController } from '../adapters/primary/rest/customer-list/customer-list.controller.js';
+import { InteractionController } from '../adapters/primary/rest/interaction/interaction.controller.js';
 
 @Module({
   imports: [
@@ -34,7 +36,7 @@ import { CustomerListController } from '../adapters/primary/rest/customer-list/c
       InteractionOrmEntity,
     ]),
   ],
-  controllers: [CustomerController, CustomerListController],
+  controllers: [CustomerController, CustomerListController, InteractionController],
   providers: [
     {
       provide: CUSTOMER_REPOSITORY_PORT,
@@ -56,6 +58,7 @@ import { CustomerListController } from '../adapters/primary/rest/customer-list/c
     ListCustomerListsUseCase,
     GetCustomerListByIdUseCase,
     SendMassEmailUseCase,
+    ListInteractionsUseCase,
   ],
   exports: [
     CUSTOMER_REPOSITORY_PORT,
