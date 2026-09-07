@@ -67,9 +67,13 @@ erDiagram
     CUSTOMERS ||--o{ OPPORTUNITIES : "originates"
     CUSTOMERS ||--o{ INTERACTIONS : "records"
     CUSTOMERS ||--o{ CUSTOMER_LIST_MEMBERS : "belongs to"
+    CUSTOMERS ||--o{ BUDGETS : "quoted for"
     CUSTOMER_LISTS ||--o{ CUSTOMER_LIST_MEMBERS : "contains"
     CONTACTS ||--o{ INTERACTIONS : "participates in"
     OPPORTUNITIES ||--o{ INTERACTIONS : "associated with"
+    OPPORTUNITIES ||--o{ BUDGETS : "linked to"
+    BUDGETS ||--|{ BUDGET_ITEMS : "contains"
+    PRODUCTS ||--o{ BUDGET_ITEMS : "referenced in"
 
     USERS {
         string id PK "char(36) UUID"
@@ -167,6 +171,54 @@ erDiagram
         string customer_id PK,FK "char(36) -> CUSTOMERS(id) CASCADE"
         timestamp created_at
     }
+
+    PRODUCTS {
+        string id PK "char(36) UUID"
+        string org_id "char(36) Tenant UUID"
+        string code "varchar(100) SKU / Item Code"
+        string name "varchar(255)"
+        string description "text nullable"
+        string category "varchar(100) default PRODUTO"
+        decimal unit_price "decimal(15,2)"
+        string unit "varchar(50) default un"
+        string currency "char(3) default BRL"
+        boolean is_active "default true"
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at "Soft delete audit"
+    }
+
+    BUDGETS {
+        string id PK "char(36) UUID"
+        string org_id "char(36) Tenant UUID"
+        string budget_number "varchar(50) e.g. ORC-YYYY-XXXX"
+        string title "varchar(255)"
+        string customer_id FK "char(36) -> CUSTOMERS(id)"
+        string opportunity_id FK "char(36) -> OPPORTUNITIES(id) nullable"
+        string status "enum: DRAFT, SENT, APPROVED, REJECTED, EXPIRED"
+        date issue_date
+        date valid_until
+        decimal subtotal "decimal(15,2)"
+        decimal discount_amount "decimal(15,2)"
+        decimal total_amount "decimal(15,2)"
+        string currency "char(3) default BRL"
+        string payment_terms "varchar(255) nullable"
+        string notes "text nullable"
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at "Soft delete audit"
+    }
+
+    BUDGET_ITEMS {
+        string id PK "char(36) UUID"
+        string budget_id FK "char(36) -> BUDGETS(id) CASCADE"
+        string product_id FK "char(36) -> PRODUCTS(id) nullable"
+        string description "varchar(255)"
+        decimal quantity "decimal(10,2)"
+        decimal unit_price "decimal(15,2)"
+        decimal discount_percent "decimal(5,2)"
+        decimal total "decimal(15,2)"
+    }
 ```
 
 ### Key Relationships & Data Integrity
@@ -176,6 +228,8 @@ erDiagram
 3. **Customer Lists (N:M)**: Dynamic and static segmented groups of customers for mass mailing and marketing campaigns, connected through the `customer_list_members` junction table.
 4. **Sales Pipeline & Opportunities (1:N)**: Deals originate from customer accounts, are assigned to a sales representative owner, and support multi-currency conversion with BRL as baseline.
 5. **Customer Interactions Timeline (Polymorphic Association)**: Records calls, notes, direct commercial emails (with file attachments), and mass campaigns. Associated with a Customer, optional Contact, and optional Opportunity.
+6. **Product & Services Catalog**: Centralized catalog of products, licenses, and services with SKU codes, unit types, and pricing.
+7. **Commercial Proposals & Budgets (1:N & 1:M items)**: Multi-line quotation builder originating from customer accounts and optional sales opportunities. Features line item discounts, terms, formal lifecycle status (`DRAFT`, `SENT`, `APPROVED`, `REJECTED`, `EXPIRED`), and printable proposal generation.
 
 <p align="center">
   <img src="frontend/public/images/features-thumbnail.jpg" alt="OpenCRM Connected Architecture Modules" width="100%" />
