@@ -58,3 +58,15 @@ export class RefreshTokenRequestDto {
   @IsNotEmpty()
   refreshToken!: string;
 }
+
+export class ChangePasswordDto {
+  @ApiProperty({ example: 'OldSecretP@ss123' })
+  @IsString()
+  @IsNotEmpty()
+  currentPassword!: string;
+
+  @ApiProperty({ example: 'NewSecretP@ss123' })
+  @IsString()
+  @MinLength(6)
+  newPassword!: string;
+}

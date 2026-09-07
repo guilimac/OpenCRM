@@ -75,6 +75,11 @@ export class User extends AggregateRoot<UserProps> {
     this.props.updatedAt = new Date();
   }
 
+  public changePassword(newPasswordHash: string): void {
+    this.props.passwordHash = newPasswordHash;
+    this.props.updatedAt = new Date();
+  }
+
   public static create(props: UserProps, id: string): Result<User> {
     if (!props.email || !props.email.includes('@')) {
       return Result.fail<User>('Invalid email address');

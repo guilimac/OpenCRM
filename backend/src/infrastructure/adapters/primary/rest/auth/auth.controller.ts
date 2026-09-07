@@ -14,11 +14,13 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { RegisterUserUseCase } from '../../../../../core/application/auth/register-user.use-case.js';
 import { LoginUserUseCase } from '../../../../../core/application/auth/login-user.use-case.js';
 import { RefreshTokenUseCase } from '../../../../../core/application/auth/refresh-token.use-case.js';
+import { ChangePasswordUseCase } from '../../../../../core/application/auth/change-password.use-case.js';
 import { TOKEN_PORT, type ITokenPort, type AccessTokenPayload } from '../../../../../core/application/common/ports/token.port.js';
 import {
   RegisterRequestDto,
   LoginRequestDto,
   RefreshTokenRequestDto,
+  ChangePasswordDto,
 } from './dto/auth.dto.js';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard.js';
 import { CurrentUser } from '../decorators/current-user.decorator.js';
@@ -30,6 +32,7 @@ export class AuthController {
     private readonly registerUserUseCase: RegisterUserUseCase,
     private readonly loginUserUseCase: LoginUserUseCase,
     private readonly refreshTokenUseCase: RefreshTokenUseCase,
+    private readonly changePasswordUseCase: ChangePasswordUseCase,
     @Inject(TOKEN_PORT)
     private readonly tokenPort: ITokenPort,
   ) {}
@@ -105,5 +108,27 @@ export class AuthController {
   @ApiOperation({ summary: 'Get current authenticated user profile' })
   getCurrentUser(@CurrentUser() user: AccessTokenPayload) {
     return user;
+  }
+
+  @Post('change-password')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Change password for currently authenticated user' })
+  @ApiResponse({ status: 200, description: 'Password updated successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid current password or validation failure' })
+  async changePassword(
+    @CurrentUser() user: AccessTokenPayload,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    const result = await this.changePasswordUseCase.execute({
+      userId: user.sub,
+      currentPassword: dto.currentPassword,
+      newPassword: dto.newPassword,
+    });
+    if (result.isFailure) {
+      throw new BadRequestException(result.error);
+    }
+    return result.getValue();
   }
 }

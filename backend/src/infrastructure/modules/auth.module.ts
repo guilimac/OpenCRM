@@ -6,6 +6,7 @@ import { JwtTokenAdapter } from '../adapters/secondary/auth/jwt-token.adapter.js
 import { RegisterUserUseCase } from '../../core/application/auth/register-user.use-case.js';
 import { LoginUserUseCase } from '../../core/application/auth/login-user.use-case.js';
 import { RefreshTokenUseCase } from '../../core/application/auth/refresh-token.use-case.js';
+import { ChangePasswordUseCase } from '../../core/application/auth/change-password.use-case.js';
 import { AuthController } from '../adapters/primary/rest/auth/auth.controller.js';
 import { JwtAuthGuard } from '../adapters/primary/rest/guards/jwt-auth.guard.js';
 
@@ -30,8 +31,9 @@ import { JwtAuthGuard } from '../adapters/primary/rest/guards/jwt-auth.guard.js'
     RegisterUserUseCase,
     LoginUserUseCase,
     RefreshTokenUseCase,
+    ChangePasswordUseCase,
     JwtAuthGuard,
   ],
-  exports: [TOKEN_PORT, JwtAuthGuard, RegisterUserUseCase, LoginUserUseCase, RefreshTokenUseCase],
+  exports: [TOKEN_PORT, JwtAuthGuard, RegisterUserUseCase, LoginUserUseCase, RefreshTokenUseCase, ChangePasswordUseCase],
 })
 export class AuthModule {}
