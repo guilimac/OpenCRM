@@ -8,7 +8,8 @@ import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface RegisterUserDto {
-  orgId: string;
+  orgId?: string;
+  organizationName?: string;
   email: string;
   password: string;
   firstName: string;
@@ -26,24 +27,31 @@ export class RegisterUserUseCase {
   ) {}
 
   async execute(dto: RegisterUserDto): Promise<Result<{ user: User; tokens: TokenPair }>> {
-    const existing = await this.userRepository.findByEmail(dto.orgId, dto.email);
+    const email = dto.email.toLowerCase().trim();
+
+    // Prevent duplicate emails globally across the platform
+    const existing = await this.userRepository.findByEmailGlobal(email);
     if (existing) {
-      return Result.fail<{ user: User; tokens: TokenPair }>('User with this email already exists in organization');
+      return Result.fail<{ user: User; tokens: TokenPair }>('An account with this email already exists');
     }
 
-    const roleResult = UserRole.create(dto.role ?? 'SALES_REP');
+    // Auto-generate orgId if registering a new workspace; assign ADMIN role by default for new orgs
+    const orgId = dto.orgId?.trim() || uuidv4();
+    const defaultRole = dto.orgId ? 'SALES_REP' : 'ADMIN';
+    const roleResult = UserRole.create(dto.role ?? defaultRole);
     if (roleResult.isFailure) {
       return Result.fail<{ user: User; tokens: TokenPair }>(roleResult.error!);
     }
 
+    // Securely hash password using bcrypt salt
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(dto.password, salt);
     const now = new Date();
 
     const userResult = User.create(
       {
-        orgId: dto.orgId,
-        email: dto.email.toLowerCase().trim(),
+        orgId,
+        email,
         passwordHash,
         firstName: dto.firstName.trim(),
         lastName: dto.lastName.trim(),
