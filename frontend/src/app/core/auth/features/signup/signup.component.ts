@@ -11,7 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../auth.service';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-signup',
   standalone: true,
   imports: [
     CommonModule,
@@ -25,14 +25,14 @@ import { AuthService } from '../../auth.service';
     MatProgressSpinnerModule,
   ],
   template: `
-    <div class="login-wrapper">
-      <mat-card class="login-card card-elevation">
-        <mat-card-header class="login-header">
+    <div class="signup-wrapper">
+      <mat-card class="signup-card card-elevation">
+        <mat-card-header class="signup-header">
           <div class="brand-badge">
             <mat-icon class="brand-icon">hub</mat-icon>
           </div>
-          <mat-card-title class="brand-title">OpenCRM</mat-card-title>
-          <mat-card-subtitle>Plataforma de Gestão de Clientes & Vendas</mat-card-subtitle>
+          <mat-card-title class="brand-title">Criar Conta no OpenCRM</mat-card-title>
+          <mat-card-subtitle>Comece a gerenciar clientes e oportunidades hoje mesmo</mat-card-subtitle>
         </mat-card-header>
 
         <mat-card-content>
@@ -43,7 +43,32 @@ import { AuthService } from '../../auth.service';
             </div>
           }
 
-          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login-form">
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="signup-form">
+            <div class="name-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Nome</mat-label>
+                <input matInput formControlName="firstName" placeholder="Seu nome" />
+                <mat-icon matPrefix>person</mat-icon>
+                @if (form.get('firstName')?.hasError('required') && form.get('firstName')?.touched) {
+                  <mat-error>Obrigatório</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Sobrenome</mat-label>
+                <input matInput formControlName="lastName" placeholder="Seu sobrenome" />
+                @if (form.get('lastName')?.hasError('required') && form.get('lastName')?.touched) {
+                  <mat-error>Obrigatório</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Nome da Empresa (opcional)</mat-label>
+              <input matInput formControlName="organizationName" placeholder="Ex: Minha Empresa Ltda" />
+              <mat-icon matPrefix>business</mat-icon>
+            </mat-form-field>
+
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>E-mail corporativo</mat-label>
               <input matInput type="email" formControlName="email" placeholder="usuario@empresa.com" />
@@ -62,6 +87,7 @@ import { AuthService } from '../../auth.service';
                 matInput
                 [type]="hidePassword() ? 'password' : 'text'"
                 formControlName="password"
+                placeholder="Mínimo 6 caracteres"
               />
               <mat-icon matPrefix>lock</mat-icon>
               <button
@@ -76,6 +102,9 @@ import { AuthService } from '../../auth.service';
               @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
                 <mat-error>A senha é obrigatória</mat-error>
               }
+              @if (form.get('password')?.hasError('minlength') && form.get('password')?.touched) {
+                <mat-error>A senha deve ter pelo menos 6 caracteres</mat-error>
+              }
             </mat-form-field>
 
             <button
@@ -88,21 +117,21 @@ import { AuthService } from '../../auth.service';
               @if (isLoading()) {
                 <mat-spinner diameter="20" class="spinner-btn"></mat-spinner>
               } @else {
-                Entrar no Sistema
+                Cadastrar e Acessar
               }
             </button>
           </form>
 
-          <div class="signup-footer">
-            <span>Não tem uma conta?</span>
-            <a routerLink="/signup" class="link-btn">Cadastre-se gratuitamente</a>
+          <div class="login-footer">
+            <span>Já tem uma conta?</span>
+            <a routerLink="/login" class="link-btn">Faça login</a>
           </div>
         </mat-card-content>
       </mat-card>
     </div>
   `,
   styles: [`
-    .login-wrapper {
+    .signup-wrapper {
       min-height: 100vh;
       display: flex;
       justify-content: center;
@@ -110,22 +139,22 @@ import { AuthService } from '../../auth.service';
       background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
       padding: 1rem;
     }
-    .login-card {
+    .signup-card {
       width: 100%;
-      max-width: 420px;
+      max-width: 480px;
       padding: 2rem 1.5rem;
       border-radius: 1rem;
       background: #ffffff;
     }
-    :host-context(.dark-theme) .login-card {
+    :host-context(.dark-theme) .signup-card {
       background: #1e293b;
     }
-    .login-header {
+    .signup-header {
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
     .brand-badge {
       width: 48px;
@@ -146,10 +175,20 @@ import { AuthService } from '../../auth.service';
     :host-context(.dark-theme) .brand-title {
       color: #f8fafc;
     }
-    .login-form {
+    .signup-form {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.75rem;
+    }
+    .name-row {
+      display: flex;
+      gap: 0.75rem;
+    }
+    .half-width {
+      flex: 1;
+    }
+    .full-width {
+      width: 100%;
     }
     .error-alert {
       background-color: #fef2f2;
@@ -178,7 +217,7 @@ import { AuthService } from '../../auth.service';
       display: inline-block;
       margin: 0 auto;
     }
-    .signup-footer {
+    .login-footer {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -197,7 +236,7 @@ import { AuthService } from '../../auth.service';
     }
   `],
 })
-export class LoginComponent {
+export class SignupComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -207,8 +246,11 @@ export class LoginComponent {
   readonly errorMessage = signal<string | null>(null);
 
   readonly form = this.fb.group({
-    email: ['demo@opencrm.com', [Validators.required, Validators.email]],
-    password: ['Demo@123456', [Validators.required, Validators.minLength(6)]],
+    firstName: ['', [Validators.required]],
+    lastName: ['', [Validators.required]],
+    organizationName: [''],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
   onSubmit(): void {
@@ -217,19 +259,27 @@ export class LoginComponent {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    const { email, password } = this.form.getRawValue();
+    const raw = this.form.getRawValue();
 
-    this.authService.login({ email: email!, password: password! }).subscribe({
-      next: () => {
-        this.isLoading.set(false);
-        this.router.navigate(['/pipeline']);
-      },
-      error: (err) => {
-        this.isLoading.set(false);
-        this.errorMessage.set(
-          err.error?.detail || err.error?.message || 'Falha ao autenticar. Verifique suas credenciais.',
-        );
-      },
-    });
+    this.authService
+      .register({
+        firstName: raw.firstName!,
+        lastName: raw.lastName!,
+        organizationName: raw.organizationName || undefined,
+        email: raw.email!,
+        password: raw.password!,
+      })
+      .subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          this.router.navigate(['/pipeline']);
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          this.errorMessage.set(
+            err.error?.detail || err.error?.message || 'Falha ao cadastrar usuário. Tente novamente.',
+          );
+        },
+      });
   }
 }

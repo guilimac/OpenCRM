@@ -23,3 +23,12 @@ export interface LoginPayload {
   password: string;
   orgId?: string;
 }
+
+export interface RegisterPayload {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  organizationName?: string;
+  orgId?: string;
+}

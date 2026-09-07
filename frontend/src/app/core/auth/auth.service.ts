@@ -2,7 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError } from 'rxjs';
-import { AuthResponse, AuthTokens, LoginPayload, UserProfile } from './auth.models';
+import { AuthResponse, AuthTokens, LoginPayload, RegisterPayload, UserProfile } from './auth.models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -19,6 +19,13 @@ export class AuthService {
 
   login(payload: LoginPayload): Observable<AuthResponse> {
     return this.http.post<AuthResponse>('/api/v1/auth/login', payload).pipe(
+      tap((res) => this.setSession(res)),
+      catchError((err) => throwError(() => err)),
+    );
+  }
+
+  register(payload: RegisterPayload): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>('/api/v1/auth/register', payload).pipe(
       tap((res) => this.setSession(res)),
       catchError((err) => throwError(() => err)),
     );

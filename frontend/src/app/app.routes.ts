@@ -8,6 +8,16 @@ export const routes: Routes = [
       import('./core/auth/features/login/login.component').then((m) => m.LoginComponent),
   },
   {
+    path: 'signup',
+    loadComponent: () =>
+      import('./core/auth/features/signup/signup.component').then((m) => m.SignupComponent),
+  },
+  {
+    path: 'register',
+    redirectTo: 'signup',
+    pathMatch: 'full',
+  },
+  {
     path: '',
     loadComponent: () =>
       import('./layout/main-layout.component').then((m) => m.MainLayoutComponent),
