@@ -31,6 +31,10 @@ export class AuthService {
     );
   }
 
+  changePassword(payload: { currentPassword: string; newPassword: string }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>('/api/v1/auth/change-password', payload);
+  }
+
   refreshToken(): Observable<AuthTokens> {
     const refreshToken = this._refreshToken();
     if (!refreshToken) {

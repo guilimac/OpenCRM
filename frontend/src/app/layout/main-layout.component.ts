@@ -8,8 +8,11 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthService } from '../core/auth/auth.service';
 import { ThemeService } from '../core/services/theme.service';
+import { ChangePasswordDialogComponent } from '../core/auth/features/change-password/change-password-dialog.component';
 
 @Component({
   selector: 'app-main-layout',
@@ -25,6 +28,8 @@ import { ThemeService } from '../core/services/theme.service';
     MatIconModule,
     MatButtonModule,
     MatMenuModule,
+    MatDividerModule,
+    MatDialogModule,
   ],
   template: `
     <mat-sidenav-container class="sidenav-container">
@@ -106,6 +111,11 @@ import { ThemeService } from '../core/services/theme.service';
               <p class="user-name">{{ authService.currentUser()?.firstName }} {{ authService.currentUser()?.lastName }}</p>
               <p class="user-role">{{ authService.currentUser()?.role }}</p>
             </div>
+            <button mat-menu-item (click)="openChangePasswordDialog()">
+              <mat-icon>lock_reset</mat-icon>
+              <span>Alterar senha</span>
+            </button>
+            <mat-divider></mat-divider>
             <button mat-menu-item (click)="authService.logout()">
               <mat-icon>logout</mat-icon>
               <span>Sair da conta</span>
@@ -218,6 +228,7 @@ import { ThemeService } from '../core/services/theme.service';
 })
 export class MainLayoutComponent {
   private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly dialog = inject(MatDialog);
   readonly authService = inject(AuthService);
   readonly themeService = inject(ThemeService);
 
@@ -226,6 +237,13 @@ export class MainLayoutComponent {
   constructor() {
     this.breakpointObserver.observe([Breakpoints.Handset, Breakpoints.TabletPortrait]).subscribe((result) => {
       this.isMobile.set(result.matches);
+    });
+  }
+
+  openChangePasswordDialog(): void {
+    this.dialog.open(ChangePasswordDialogComponent, {
+      width: '460px',
+      disableClose: true,
     });
   }
 }
