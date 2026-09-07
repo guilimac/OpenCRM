@@ -13,6 +13,7 @@ import { CustomerApiService } from '../../services/customer-api.service';
 import { ContactItem } from '../../models/customer.model';
 import { I18nService } from '../../../../core/services/i18n.service';
 import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
+import { HtmlEditorComponent } from '../../../../shared/ui/html-editor/html-editor.component';
 
 export interface SendCustomerEmailDialogData {
   customerId: string;
@@ -34,6 +35,7 @@ export interface SendCustomerEmailDialogData {
     MatIconModule,
     MatProgressSpinnerModule,
     TranslatePipe,
+    HtmlEditorComponent,
   ],
   template: `
     <div class="dialog-container">
@@ -90,19 +92,19 @@ export interface SendCustomerEmailDialogData {
             }
           </mat-form-field>
 
-          <!-- Message Body -->
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'EMAIL.MESSAGE' | translate }}</mat-label>
-            <textarea
-              matInput
-              rows="6"
+          <!-- Message Body with HTML Editor -->
+          <div class="field-container">
+            <label class="field-label">{{ 'EMAIL.MESSAGE' | translate }} *</label>
+            <app-html-editor
               formControlName="body"
-              placeholder="Escreva a mensagem aqui..."
-            ></textarea>
-            @if (form.get('body')?.hasError('required')) {
-              <mat-error>{{ 'EMAIL.VALIDATION_BODY_REQUIRED' | translate }}</mat-error>
+              [placeholder]="'EMAIL.MESSAGE_PLACEHOLDER' | translate"
+              minHeight="170px"
+              maxHeight="320px"
+            ></app-html-editor>
+            @if (form.get('body')?.hasError('required') && form.get('body')?.touched) {
+              <div class="field-error">{{ 'EMAIL.VALIDATION_BODY_REQUIRED' | translate }}</div>
             }
-          </mat-form-field>
+          </div>
 
           @if (errorMessage()) {
             <div class="error-alert">
@@ -135,8 +137,8 @@ export interface SendCustomerEmailDialogData {
   `,
   styles: [`
     .dialog-container {
-      min-width: 440px;
-      max-width: 560px;
+      min-width: 580px;
+      max-width: 720px;
     }
     .dialog-header {
       align-items: center;
@@ -146,6 +148,25 @@ export interface SendCustomerEmailDialogData {
       font-size: 0.9rem;
       color: #64748b;
       margin: 0 0 1rem;
+    }
+    .field-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 0.5rem;
+    }
+    .field-label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #475569;
+    }
+    :host-context(.dark-theme) .field-label {
+      color: #94a3b8;
+    }
+    .field-error {
+      font-size: 0.75rem;
+      color: #dc2626;
+      margin-top: 0.2rem;
     }
     .flex-col {
       display: flex;

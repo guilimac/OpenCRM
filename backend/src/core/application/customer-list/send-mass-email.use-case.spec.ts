@@ -187,4 +187,30 @@ describe('SendMassEmailUseCase', () => {
     expect(result.isFailure).toBe(true);
     expect(result.error).toBe('Customer list not found');
   });
+
+  it('should interpolate tags in HTML body and preserve HTML markup', async () => {
+    listRepo.findById.mockResolvedValue(mockList);
+    customerRepo.findById.mockImplementation(async (_orgId: string, id: string) => {
+      if (id === 'cust-1') return customer1;
+      if (id === 'cust-2') return customer2;
+      return null;
+    });
+
+    const result = await useCase.execute({
+      orgId: 'org-1',
+      userId: 'user-sender',
+      customerListId: 'list-1',
+      subject: 'Campanha Especial',
+      body: '<p>Olá <strong>{{firstName}}</strong>,</p><p>Bem-vindo à <em>{{companyName}}</em>.</p>',
+    });
+
+    expect(result.isSuccess).toBe(true);
+    expect(emailPort.sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'lucas@techbrasil.com',
+        html: expect.stringContaining('<p>Olá <strong>Lucas</strong>,</p><p>Bem-vindo à <em>Tech Brasil</em>.</p>'),
+        text: 'Olá Lucas, Bem-vindo à Tech Brasil.',
+      }),
+    );
+  });
 });

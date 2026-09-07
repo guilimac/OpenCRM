@@ -219,16 +219,27 @@ export class SendMassEmailUseCase {
       const interpolatedSubject = interpolate(command.subject);
       const interpolatedBody = interpolate(command.body);
 
-      const htmlBody = `
+      const isHtml = /<[a-z][\s\S]*>/i.test(interpolatedBody);
+      const htmlBody = isHtml
+        ? `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #1e293b; line-height: 1.6;">${interpolatedBody}</div>`
+        : `
         <div style="font-family: Arial, sans-serif; font-size: 14px; color: #1e293b; line-height: 1.6;">
           ${interpolatedBody.replace(/\n/g, '<br/>')}
         </div>
       `;
 
+      const plainText = isHtml
+        ? interpolatedBody
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/\s+/g, ' ')
+            .replace(/\s+([.,;:!?])/g, '$1')
+            .trim()
+        : interpolatedBody;
+
       const sendResult = await this.emailPort.sendEmail({
         to: targetContact.email,
         subject: interpolatedSubject,
-        text: interpolatedBody,
+        text: plainText,
         html: htmlBody,
       });
 

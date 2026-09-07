@@ -81,17 +81,28 @@ export class SendEmailToCustomerUseCase {
       );
     }
 
-    const htmlBody = `
+    const isHtml = /<[a-z][\s\S]*>/i.test(command.body);
+    const htmlBody = isHtml
+      ? `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #1e293b; line-height: 1.6;">${command.body}</div>`
+      : `
       <div style="font-family: Arial, sans-serif; font-size: 14px; color: #1e293b; line-height: 1.6;">
         ${command.body.replace(/\n/g, '<br/>')}
       </div>
     `;
 
+    const plainText = isHtml
+      ? command.body
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .replace(/\s+([.,;:!?])/g, '$1')
+          .trim()
+      : command.body;
+
     // Dispatch email via Mailgun Email Port
     const emailResult = await this.emailPort.sendEmail({
       to: resolvedEmail,
       subject: command.subject,
-      text: command.body,
+      text: plainText,
       html: htmlBody,
     });
 

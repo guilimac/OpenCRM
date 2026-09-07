@@ -144,4 +144,25 @@ describe('SendEmailToCustomerUseCase', () => {
     expect(result.isFailure).toBe(true);
     expect(result.error).toBe('Customer not found');
   });
+
+  it('should preserve HTML markup and generate clean plain text', async () => {
+    customerRepo.findById.mockResolvedValue(mockCustomer);
+
+    const htmlContent = '<h1>Proposta Comercial</h1><p>Segue os <strong>detalhes</strong>.</p>';
+    const result = await useCase.execute({
+      orgId: 'org-1',
+      userId: 'user-1',
+      customerId: 'cust-1',
+      subject: 'Proposta com HTML',
+      body: htmlContent,
+    });
+
+    expect(result.isSuccess).toBe(true);
+    expect(emailPort.sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        html: expect.stringContaining(htmlContent),
+        text: 'Proposta Comercial Segue os detalhes.',
+      }),
+    );
+  });
 });

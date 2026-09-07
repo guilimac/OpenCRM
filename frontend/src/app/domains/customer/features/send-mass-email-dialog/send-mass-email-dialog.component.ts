@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, ViewChild, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -13,6 +13,7 @@ import { CustomerApiService } from '../../services/customer-api.service';
 import { CustomerListItem, MassEmailResult } from '../../models/customer.model';
 import { I18nService } from '../../../../core/services/i18n.service';
 import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
+import { HtmlEditorComponent } from '../../../../shared/ui/html-editor/html-editor.component';
 
 export interface SendMassEmailDialogData {
   list: CustomerListItem;
@@ -31,8 +32,8 @@ export interface SendMassEmailDialogData {
     MatIconModule,
     MatChipsModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
     TranslatePipe,
+    HtmlEditorComponent,
   ],
   template: `
     <div class="dialog-container">
@@ -83,19 +84,20 @@ export interface SendMassEmailDialogData {
             }
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'EMAIL.BODY_LABEL' | translate }}</mat-label>
-            <textarea
-              #bodyArea
-              matInput
-              rows="7"
+          <!-- Message Body with HTML Editor -->
+          <div class="field-container">
+            <label class="field-label">{{ 'EMAIL.BODY_LABEL' | translate }} *</label>
+            <app-html-editor
+              #htmlEditor
               formControlName="body"
-              placeholder="Olá {{ '{{contactName}}' }}, temos uma novidade para a {{ '{{companyName}}' }}..."
-            ></textarea>
-            @if (form.get('body')?.hasError('required')) {
-              <mat-error>{{ 'EMAIL.VALIDATION_BODY_REQUIRED' | translate }}</mat-error>
+              [placeholder]="'EMAIL.MESSAGE_PLACEHOLDER' | translate"
+              minHeight="180px"
+              maxHeight="340px"
+            ></app-html-editor>
+            @if (form.get('body')?.hasError('required') && form.get('body')?.touched) {
+              <div class="field-error">{{ 'EMAIL.VALIDATION_BODY_REQUIRED' | translate }}</div>
             }
-          </mat-form-field>
+          </div>
 
           @if (sendResult()) {
             <div class="success-result">
@@ -142,12 +144,31 @@ export interface SendMassEmailDialogData {
   `,
   styles: [`
     .dialog-container {
-      min-width: 480px;
-      max-width: 600px;
+      min-width: 600px;
+      max-width: 760px;
     }
     .dialog-header {
       align-items: center;
       margin-bottom: 0.5rem;
+    }
+    .field-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 0.5rem;
+    }
+    .field-label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #475569;
+    }
+    :host-context(.dark-theme) .field-label {
+      color: #94a3b8;
+    }
+    .field-error {
+      font-size: 0.75rem;
+      color: #dc2626;
+      margin-top: 0.2rem;
     }
     .list-info-banner {
       background: #f8fafc;
@@ -298,14 +319,20 @@ export class SendMassEmailDialogComponent {
     '{{email}}',
   ];
 
+  @ViewChild('htmlEditor') htmlEditor?: HtmlEditorComponent;
+
   readonly form = this.fb.group({
     subject: ['', [Validators.required, Validators.minLength(2)]],
     body: ['', [Validators.required, Validators.minLength(3)]],
   });
 
   insertTag(tag: string): void {
-    const currentBody = this.form.get('body')?.value || '';
-    this.form.patchValue({ body: `${currentBody} ${tag}` });
+    if (this.htmlEditor) {
+      this.htmlEditor.insertText(tag);
+    } else {
+      const currentBody = this.form.get('body')?.value || '';
+      this.form.patchValue({ body: `${currentBody} ${tag}` });
+    }
   }
 
   onSubmit(): void {
