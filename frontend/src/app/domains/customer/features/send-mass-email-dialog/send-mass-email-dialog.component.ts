@@ -11,6 +11,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CustomerApiService } from '../../services/customer-api.service';
 import { CustomerListItem, MassEmailResult } from '../../models/customer.model';
+import { I18nService } from '../../../../core/services/i18n.service';
+import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
 
 export interface SendMassEmailDialogData {
   list: CustomerListItem;
@@ -30,22 +32,23 @@ export interface SendMassEmailDialogData {
     MatChipsModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    TranslatePipe,
   ],
   template: `
     <div class="dialog-container">
       <div class="dialog-header flex-row gap-sm">
         <mat-icon color="primary">campaign</mat-icon>
-        <h2 mat-dialog-title class="m-0">Disparo de E-mail em Massa</h2>
+        <h2 mat-dialog-title class="m-0">{{ 'EMAIL.MASS_DIALOG_TITLE' | translate }}</h2>
       </div>
 
       <div class="list-info-banner flex-row space-between align-center">
         <div>
           <span class="list-name">{{ data.list.name }}</span>
-          <p class="list-desc">{{ data.list.description || 'Sem descrição' }}</p>
+          <p class="list-desc">{{ data.list.description || ('COMMON.NO_DESCRIPTION' | translate) }}</p>
         </div>
         <span class="member-badge">
           <mat-icon class="icon-xs">group</mat-icon>
-          {{ data.list.memberCount }} cliente(s)
+          {{ 'CUSTOMER_LISTS.MEMBERS_COUNT' | translate:{ count: data.list.memberCount } }}
         </span>
       </div>
 
@@ -53,7 +56,7 @@ export interface SendMassEmailDialogData {
         <form [formGroup]="form" class="flex-col gap-sm">
           <!-- Variables helper -->
           <div class="variables-bar">
-            <span class="vars-label">Variáveis dinâmicas (clique para inserir no corpo):</span>
+            <span class="vars-label">{{ 'EMAIL.DYNAMIC_VARS_LABEL' | translate }}</span>
             <div class="chips-row">
               @for (tag of templateTags; track tag) {
                 <button
@@ -69,19 +72,19 @@ export interface SendMassEmailDialogData {
           </div>
 
           <mat-form-field appearance="outline">
-            <mat-label>Assunto</mat-label>
+            <mat-label>{{ 'EMAIL.SUBJECT' | translate }}</mat-label>
             <input
               matInput
               formControlName="subject"
               placeholder="Ex: Comunicado especial para {{ '{{companyName}}' }}"
             />
             @if (form.get('subject')?.hasError('required')) {
-              <mat-error>O assunto é obrigatório</mat-error>
+              <mat-error>{{ 'EMAIL.VALIDATION_SUBJECT_REQUIRED' | translate }}</mat-error>
             }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Corpo do E-mail</mat-label>
+            <mat-label>{{ 'EMAIL.BODY_LABEL' | translate }}</mat-label>
             <textarea
               #bodyArea
               matInput
@@ -90,7 +93,7 @@ export interface SendMassEmailDialogData {
               placeholder="Olá {{ '{{contactName}}' }}, temos uma novidade para a {{ '{{companyName}}' }}..."
             ></textarea>
             @if (form.get('body')?.hasError('required')) {
-              <mat-error>O corpo da mensagem é obrigatório</mat-error>
+              <mat-error>{{ 'EMAIL.VALIDATION_BODY_REQUIRED' | translate }}</mat-error>
             }
           </mat-form-field>
 
@@ -98,9 +101,9 @@ export interface SendMassEmailDialogData {
             <div class="success-result">
               <mat-icon class="icon-sm text-green">check_circle</mat-icon>
               <span>
-                {{ sendResult()!.sentCount }} e-mail(s) enviados com sucesso!
+                {{ 'EMAIL.MASS_SUCCESS' | translate:{ count: sendResult()!.sentCount } }}
                 @if (sendResult()!.failedCount > 0) {
-                  ({{ sendResult()!.failedCount }} falhas registradas)
+                  {{ 'EMAIL.FAILURES_COUNT' | translate:{ count: sendResult()!.failedCount } }}
                 }
               </span>
             </div>
@@ -117,7 +120,7 @@ export interface SendMassEmailDialogData {
 
       <mat-dialog-actions align="end" class="gap-sm">
         <button mat-button type="button" (click)="onCancel()" [disabled]="isSubmitting()">
-          {{ sendResult() ? 'Fechar' : 'Cancelar' }}
+          {{ sendResult() ? ('COMMON.CLOSE' | translate) : ('COMMON.CANCEL' | translate) }}
         </button>
         @if (!sendResult()) {
           <button
@@ -131,7 +134,7 @@ export interface SendMassEmailDialogData {
             } @else {
               <mat-icon class="icon-sm mr-xs">send</mat-icon>
             }
-            Enviar para {{ data.list.memberCount }} cliente(s)
+            {{ 'EMAIL.SEND_MASS_BTN' | translate:{ count: data.list.memberCount } }}
           </button>
         }
       </mat-dialog-actions>
@@ -282,6 +285,7 @@ export class SendMassEmailDialogComponent {
   private readonly fb = inject(FormBuilder);
   private readonly customerApi = inject(CustomerApiService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly i18n = inject(I18nService);
 
   readonly isSubmitting = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
@@ -320,8 +324,8 @@ export class SendMassEmailDialogComponent {
         this.isSubmitting.set(false);
         this.sendResult.set(res.data);
         this.snackBar.open(
-          `${res.data.sentCount} e-mails enviados com sucesso!`,
-          'Fechar',
+          this.i18n.t('EMAIL.MASS_SUCCESS', { count: res.data.sentCount }),
+          this.i18n.t('COMMON.CLOSE'),
           { duration: 4000, panelClass: ['snackbar-success'] },
         );
       },

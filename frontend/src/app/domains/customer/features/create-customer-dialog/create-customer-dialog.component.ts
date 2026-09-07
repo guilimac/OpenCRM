@@ -9,9 +9,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomerApiService } from '../../services/customer-api.service';
 import { CreateCustomerForm } from '../../models/customer.model';
+import { I18nService } from '../../../../core/services/i18n.service';
+import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-create-customer-dialog',
@@ -27,38 +29,39 @@ import { CreateCustomerForm } from '../../models/customer.model';
     MatIconModule,
     MatDividerModule,
     MatProgressSpinnerModule,
+    TranslatePipe,
   ],
   template: `
     <div class="dialog-container">
       <div class="dialog-header flex-row gap-sm">
         <mat-icon color="primary">domain_add</mat-icon>
-        <h2 mat-dialog-title class="m-0">Novo Cliente & Conta</h2>
+        <h2 mat-dialog-title class="m-0">{{ 'CUSTOMER.DIALOG_TITLE' | translate }}</h2>
       </div>
-      <p class="subtitle">Cadastre os dados cadastrais da empresa e o contato comercial principal.</p>
+      <p class="subtitle">{{ 'CUSTOMER.DIALOG_SUBTITLE' | translate }}</p>
 
       <mat-dialog-content>
         <form [formGroup]="form" class="flex-col gap-sm">
-          <div class="section-heading">Dados da Empresa</div>
+          <div class="section-heading">{{ 'CUSTOMER.COMPANY_INFO' | translate }}</div>
 
           <!-- Company Name -->
           <mat-form-field appearance="outline">
-            <mat-label>Razão Social / Nome da Empresa</mat-label>
+            <mat-label>{{ 'CUSTOMER.COMPANY_NAME' | translate }}</mat-label>
             <input
               matInput
               formControlName="companyName"
               placeholder="Ex: TechCorp Brasil Soluções Ltda"
             />
             @if (form.get('companyName')?.hasError('required')) {
-              <mat-error>O nome da empresa é obrigatório</mat-error>
+              <mat-error>{{ 'CUSTOMER.VALIDATION_NAME_REQUIRED' | translate }}</mat-error>
             }
           </mat-form-field>
 
           <div class="grid-2col">
             <!-- Industry -->
             <mat-form-field appearance="outline">
-              <mat-label>Setor de Atuação</mat-label>
+              <mat-label>{{ 'CUSTOMER.INDUSTRY' | translate }}</mat-label>
               <mat-select formControlName="industry">
-                <mat-option value="">Não especificado</mat-option>
+                <mat-option value="">—</mat-option>
                 <mat-option value="Tecnologia">Tecnologia</mat-option>
                 <mat-option value="Financeiro">Financeiro / Bancos</mat-option>
                 <mat-option value="Varejo">Varejo & E-commerce</mat-option>
@@ -71,13 +74,13 @@ import { CreateCustomerForm } from '../../models/customer.model';
 
             <!-- Status -->
             <mat-form-field appearance="outline">
-              <mat-label>Status Inicial</mat-label>
+              <mat-label>{{ 'CUSTOMER.INITIAL_STATUS' | translate }}</mat-label>
               <mat-select formControlName="status">
-                <mat-option value="LEAD">Lead</mat-option>
-                <mat-option value="PROSPECT">Prospect</mat-option>
-                <mat-option value="ACTIVE_CUSTOMER">Cliente Ativo</mat-option>
-                <mat-option value="CHURNED">Cancelado</mat-option>
-                <mat-option value="INACTIVE">Inativo</mat-option>
+                <mat-option value="LEAD">{{ 'CUSTOMER.STATUS_LEAD' | translate }}</mat-option>
+                <mat-option value="PROSPECT">{{ 'CUSTOMER.STATUS_PROSPECT' | translate }}</mat-option>
+                <mat-option value="ACTIVE_CUSTOMER">{{ 'CUSTOMER.STATUS_ACTIVE_CUSTOMER' | translate }}</mat-option>
+                <mat-option value="CHURNED">{{ 'CUSTOMER.STATUS_CHURNED' | translate }}</mat-option>
+                <mat-option value="INACTIVE">{{ 'CUSTOMER.STATUS_INACTIVE' | translate }}</mat-option>
               </mat-select>
             </mat-form-field>
           </div>
@@ -85,7 +88,7 @@ import { CreateCustomerForm } from '../../models/customer.model';
           <div class="grid-2col">
             <!-- Website -->
             <mat-form-field appearance="outline">
-              <mat-label>Website</mat-label>
+              <mat-label>{{ 'CUSTOMER.WEBSITE' | translate }}</mat-label>
               <input
                 matInput
                 formControlName="website"
@@ -95,7 +98,7 @@ import { CreateCustomerForm } from '../../models/customer.model';
 
             <!-- Annual Revenue -->
             <mat-form-field appearance="outline">
-              <mat-label>Faturamento Anual (R$)</mat-label>
+              <mat-label>{{ 'CUSTOMER.ANNUAL_REVENUE' | translate }}</mat-label>
               <input
                 matInput
                 type="number"
@@ -107,7 +110,7 @@ import { CreateCustomerForm } from '../../models/customer.model';
 
           <!-- Employee count -->
           <mat-form-field appearance="outline">
-            <mat-label>Número de Colaboradores</mat-label>
+            <mat-label>{{ 'CUSTOMER.EMPLOYEE_COUNT' | translate }}</mat-label>
             <input
               matInput
               type="number"
@@ -118,23 +121,23 @@ import { CreateCustomerForm } from '../../models/customer.model';
 
           <mat-divider class="my-sm"></mat-divider>
 
-          <div class="section-heading">Contato Principal (Opcional)</div>
+          <div class="section-heading">{{ 'CUSTOMER.PRIMARY_CONTACT' | translate }}</div>
 
           <div class="grid-2col">
             <mat-form-field appearance="outline">
-              <mat-label>Nome</mat-label>
+              <mat-label>{{ 'CUSTOMER.FIRST_NAME' | translate }}</mat-label>
               <input matInput formControlName="contactFirstName" placeholder="Ex: Carlos" />
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Sobrenome</mat-label>
+              <mat-label>{{ 'CUSTOMER.LAST_NAME' | translate }}</mat-label>
               <input matInput formControlName="contactLastName" placeholder="Ex: Silva" />
             </mat-form-field>
           </div>
 
           <div class="grid-2col">
             <mat-form-field appearance="outline">
-              <mat-label>E-mail do Contato</mat-label>
+              <mat-label>{{ 'CUSTOMER.EMAIL' | translate }}</mat-label>
               <input
                 matInput
                 type="email"
@@ -142,12 +145,12 @@ import { CreateCustomerForm } from '../../models/customer.model';
                 placeholder="carlos@empresa.com.br"
               />
               @if (form.get('contactEmail')?.hasError('email')) {
-                <mat-error>Informe um e-mail válido</mat-error>
+                <mat-error>{{ 'CUSTOMER.VALIDATION_EMAIL_INVALID' | translate }}</mat-error>
               }
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Telefone / WhatsApp</mat-label>
+              <mat-label>{{ 'CUSTOMER.PHONE' | translate }}</mat-label>
               <input
                 matInput
                 formControlName="contactPhone"
@@ -157,7 +160,7 @@ import { CreateCustomerForm } from '../../models/customer.model';
           </div>
 
           <mat-form-field appearance="outline">
-            <mat-label>Cargo / Função</mat-label>
+            <mat-label>{{ 'CUSTOMER.JOB_TITLE' | translate }}</mat-label>
             <input
               matInput
               formControlName="contactTitle"
@@ -176,7 +179,7 @@ import { CreateCustomerForm } from '../../models/customer.model';
 
       <mat-dialog-actions align="end" class="gap-sm">
         <button mat-button type="button" (click)="onCancel()" [disabled]="isSubmitting()">
-          Cancelar
+          {{ 'COMMON.CANCEL' | translate }}
         </button>
         <button
           mat-flat-button
@@ -189,7 +192,7 @@ import { CreateCustomerForm } from '../../models/customer.model';
           } @else {
             <mat-icon class="icon-sm mr-xs">check</mat-icon>
           }
-          Salvar Cliente
+          {{ 'CUSTOMER.SAVE_CUSTOMER' | translate }}
         </button>
       </mat-dialog-actions>
     </div>
@@ -272,6 +275,7 @@ export class CreateCustomerDialogComponent {
   private readonly fb = inject(FormBuilder);
   private readonly customerApi = inject(CustomerApiService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly i18n = inject(I18nService);
 
   readonly isSubmitting = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
@@ -321,10 +325,14 @@ export class CreateCustomerDialogComponent {
     this.customerApi.create(payload).subscribe({
       next: (created) => {
         this.isSubmitting.set(false);
-        this.snackBar.open('Cliente cadastrado com sucesso!', 'Fechar', {
-          duration: 3500,
-          panelClass: ['snackbar-success'],
-        });
+        this.snackBar.open(
+          this.i18n.t('CUSTOMER.CUSTOMER_SAVED'),
+          this.i18n.t('COMMON.CLOSE'),
+          {
+            duration: 3500,
+            panelClass: ['snackbar-success'],
+          },
+        );
         this.dialogRef.close(created);
       },
       error: (err) => {

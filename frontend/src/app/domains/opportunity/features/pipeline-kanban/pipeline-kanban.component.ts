@@ -15,6 +15,7 @@ import { OpportunityStore } from '../../state/opportunity.store';
 import { OpportunityItem, OpportunityStage } from '../../models/opportunity.model';
 import { BrlCurrencyPipe } from '../../../../shared/pipes/brl-currency.pipe';
 import { StatusBadgeComponent } from '../../../../shared/ui/status-badge/status-badge.component';
+import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-pipeline-kanban',
@@ -28,24 +29,25 @@ import { StatusBadgeComponent } from '../../../../shared/ui/status-badge/status-
     MatChipsModule,
     MatProgressBarModule,
     BrlCurrencyPipe,
+    TranslatePipe,
   ],
   template: `
     <div class="pipeline-container">
       <!-- Metric Highlights in BRL -->
       <header class="pipeline-header">
         <div>
-          <h1 class="pipeline-title">Funil de Vendas (Pipeline)</h1>
-          <p class="pipeline-subtitle">Visualização interativa Kanban com conversão multi-moeda para BRL</p>
+          <h1 class="pipeline-title">{{ 'PIPELINE.TITLE' | translate }}</h1>
+          <p class="pipeline-subtitle">{{ 'PIPELINE.SUBTITLE' | translate }}</p>
         </div>
         <div class="header-metrics flex-row gap-md">
           <div class="metric-card card-elevation">
-            <span class="metric-label">Valor Total do Pipeline</span>
+            <span class="metric-label">{{ 'PIPELINE.TOTAL_VALUE' | translate }}</span>
             <span class="metric-val primary">
               {{ store.totalPipelineValueInBrl() | brlCurrency:'BRL' }}
             </span>
           </div>
           <div class="metric-card card-elevation">
-            <span class="metric-label">Receita Ponderada (Probabilidade)</span>
+            <span class="metric-label">{{ 'PIPELINE.WEIGHTED_REVENUE' | translate }}</span>
             <span class="metric-val success">
               {{ store.totalWeightedValueInBrl() | brlCurrency:'BRL' }}
             </span>
@@ -56,10 +58,10 @@ import { StatusBadgeComponent } from '../../../../shared/ui/status-badge/status-
       <!-- Kanban Board -->
       <div class="kanban-board">
         @for (stage of stages; track stage.id) {
-          <div class="kanban-column card-elevation" role="region" [attr.aria-label]="stage.label">
+          <div class="kanban-column card-elevation" role="region" [attr.aria-label]="stage.labelKey | translate">
             <div class="column-header flex-row">
               <div class="flex-row gap-sm">
-                <span class="column-title">{{ stage.label }}</span>
+                <span class="column-title">{{ stage.labelKey | translate }}</span>
                 <span class="column-count">
                   {{ store.dealsByStage()[stage.id]?.length || 0 }}
                 </span>
@@ -79,7 +81,7 @@ import { StatusBadgeComponent } from '../../../../shared/ui/status-badge/status-
               @for (deal of store.dealsByStage()[stage.id] || []; track deal.id) {
                 <div cdkDrag class="deal-card card-elevation">
                   <div class="deal-card-header flex-row">
-                    <span class="deal-customer">{{ deal.customerName || 'Cliente' }}</span>
+                    <span class="deal-customer">{{ deal.customerName || ('CUSTOMER.TITLE' | translate) }}</span>
                     <div class="flex-spacer"></div>
                     @if (deal.currency !== 'BRL') {
                       <span class="currency-tag">{{ deal.currency }}</span>
@@ -106,14 +108,14 @@ import { StatusBadgeComponent } from '../../../../shared/ui/status-badge/status-
                     </span>
                     <div class="flex-spacer"></div>
                     <span class="deal-weighted">
-                      Prev: {{ deal.weightedValueInBrl | brlCurrency:'BRL' }}
+                      {{ 'PIPELINE.WEIGHTED_FORECAST' | translate }} {{ deal.weightedValueInBrl | brlCurrency:'BRL' }}
                     </span>
                   </div>
                 </div>
               }
 
               @if ((store.dealsByStage()[stage.id] || []).length === 0) {
-                <div class="empty-column">Arraste oportunidades aqui</div>
+                <div class="empty-column">{{ 'PIPELINE.DRAG_HERE' | translate }}</div>
               }
             </div>
           </div>
@@ -306,13 +308,13 @@ import { StatusBadgeComponent } from '../../../../shared/ui/status-badge/status-
 export class PipelineKanbanComponent implements OnInit {
   readonly store = inject(OpportunityStore);
 
-  readonly stages: Array<{ id: OpportunityStage; label: string; probability: number }> = [
-    { id: 'DISCOVERY', label: 'Descoberta', probability: 10 },
-    { id: 'QUALIFICATION', label: 'Qualificação', probability: 25 },
-    { id: 'PROPOSAL', label: 'Proposta Enviada', probability: 50 },
-    { id: 'NEGOTIATION', label: 'Negociação', probability: 75 },
-    { id: 'CLOSED_WON', label: 'Fechado Ganho', probability: 100 },
-    { id: 'CLOSED_LOST', label: 'Fechado Perdido', probability: 0 },
+  readonly stages: Array<{ id: OpportunityStage; labelKey: string; probability: number }> = [
+    { id: 'DISCOVERY', labelKey: 'PIPELINE.STAGE_DISCOVERY', probability: 10 },
+    { id: 'QUALIFICATION', labelKey: 'PIPELINE.STAGE_QUALIFICATION', probability: 25 },
+    { id: 'PROPOSAL', labelKey: 'PIPELINE.STAGE_PROPOSAL', probability: 50 },
+    { id: 'NEGOTIATION', labelKey: 'PIPELINE.STAGE_NEGOTIATION', probability: 75 },
+    { id: 'CLOSED_WON', labelKey: 'PIPELINE.STAGE_CLOSED_WON', probability: 100 },
+    { id: 'CLOSED_LOST', labelKey: 'PIPELINE.STAGE_CLOSED_LOST', probability: 0 },
   ];
 
   get connectedDropLists(): string[] {

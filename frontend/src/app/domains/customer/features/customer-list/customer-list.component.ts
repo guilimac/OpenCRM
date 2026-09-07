@@ -18,6 +18,7 @@ import { SendCustomerEmailDialogComponent } from '../send-customer-email-dialog/
 import { CreateCustomerDialogComponent } from '../create-customer-dialog/create-customer-dialog.component';
 import { StatusBadgeComponent } from '../../../../shared/ui/status-badge/status-badge.component';
 import { BrlCurrencyPipe } from '../../../../shared/pipes/brl-currency.pipe';
+import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-customer-list',
@@ -36,13 +37,14 @@ import { BrlCurrencyPipe } from '../../../../shared/pipes/brl-currency.pipe';
     MatChipsModule,
     StatusBadgeComponent,
     BrlCurrencyPipe,
+    TranslatePipe,
   ],
   template: `
     <div class="page-container">
       <header class="page-header flex-row">
         <div>
-          <h1 class="page-title">Clientes & Contas</h1>
-          <p class="page-subtitle">Gerencie empresas, contatos e dados financeiros consolidados</p>
+          <h1 class="page-title">{{ 'CUSTOMER.TITLE' | translate }}</h1>
+          <p class="page-subtitle">{{ 'CUSTOMER.SUBTITLE' | translate }}</p>
         </div>
         <div class="flex-spacer"></div>
         <button
@@ -52,32 +54,32 @@ import { BrlCurrencyPipe } from '../../../../shared/pipes/brl-currency.pipe';
           (click)="openCreateCustomerDialog()"
         >
           <mat-icon>add</mat-icon>
-          Novo Cliente
+          {{ 'CUSTOMER.NEW_CUSTOMER' | translate }}
         </button>
       </header>
 
       <!-- Filter and Search Bar -->
       <div class="filter-bar card-elevation flex-row gap-md">
         <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
-          <mat-label>Pesquisar por nome ou setor</mat-label>
+          <mat-label>{{ 'CUSTOMER.SEARCH_PLACEHOLDER' | translate }}</mat-label>
           <input
             matInput
             [ngModel]="store.search()"
             (ngModelChange)="onSearchChange($event)"
-            placeholder="Ex: Acme, Tecnologia..."
+            [placeholder]="'CUSTOMER.SEARCH_PLACEHOLDER' | translate"
           />
           <mat-icon matPrefix>search</mat-icon>
         </mat-form-field>
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>Status</mat-label>
+          <mat-label>{{ 'CUSTOMER.STATUS_FILTER' | translate }}</mat-label>
           <mat-select [ngModel]="store.statusFilter()" (ngModelChange)="onStatusChange($event)">
-            <mat-option value="">Todos</mat-option>
-            <mat-option value="LEAD">Lead</mat-option>
-            <mat-option value="PROSPECT">Prospect</mat-option>
-            <mat-option value="ACTIVE_CUSTOMER">Cliente Ativo</mat-option>
-            <mat-option value="CHURNED">Cancelado</mat-option>
-            <mat-option value="INACTIVE">Inativo</mat-option>
+            <mat-option value="">{{ 'CUSTOMER.STATUS_ALL' | translate }}</mat-option>
+            <mat-option value="LEAD">{{ 'CUSTOMER.STATUS_LEAD' | translate }}</mat-option>
+            <mat-option value="PROSPECT">{{ 'CUSTOMER.STATUS_PROSPECT' | translate }}</mat-option>
+            <mat-option value="ACTIVE_CUSTOMER">{{ 'CUSTOMER.STATUS_ACTIVE_CUSTOMER' | translate }}</mat-option>
+            <mat-option value="CHURNED">{{ 'CUSTOMER.STATUS_CHURNED' | translate }}</mat-option>
+            <mat-option value="INACTIVE">{{ 'CUSTOMER.STATUS_INACTIVE' | translate }}</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
@@ -93,7 +95,7 @@ import { BrlCurrencyPipe } from '../../../../shared/pipes/brl-currency.pipe';
         <table mat-table [dataSource]="store.customers()" class="full-width" aria-label="Tabela de Clientes">
           <!-- Company Name Column -->
           <ng-container matColumnDef="companyName">
-            <th mat-header-cell *matHeaderCellDef>Empresa</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'CUSTOMER.COL_COMPANY' | translate }}</th>
             <td mat-cell *matCellDef="let row" class="fw-500">
               {{ row.companyName }}
               @if (row.website) {
@@ -106,13 +108,13 @@ import { BrlCurrencyPipe } from '../../../../shared/pipes/brl-currency.pipe';
 
           <!-- Industry Column -->
           <ng-container matColumnDef="industry">
-            <th mat-header-cell *matHeaderCellDef>Setor</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'CUSTOMER.COL_INDUSTRY' | translate }}</th>
             <td mat-cell *matCellDef="let row">{{ row.industry || '—' }}</td>
           </ng-container>
 
           <!-- Status Column -->
           <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'CUSTOMER.COL_STATUS' | translate }}</th>
             <td mat-cell *matCellDef="let row">
               <app-status-badge [status]="row.status"></app-status-badge>
             </td>
@@ -120,7 +122,7 @@ import { BrlCurrencyPipe } from '../../../../shared/pipes/brl-currency.pipe';
 
           <!-- Annual Revenue Column (BRL Currency) -->
           <ng-container matColumnDef="annualRevenue">
-            <th mat-header-cell *matHeaderCellDef>Receita Anual</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'CUSTOMER.COL_REVENUE' | translate }}</th>
             <td mat-cell *matCellDef="let row">
               {{ row.annualRevenue | brlCurrency:'BRL' }}
             </td>
@@ -128,13 +130,13 @@ import { BrlCurrencyPipe } from '../../../../shared/pipes/brl-currency.pipe';
 
           <!-- Contacts Count Column -->
           <ng-container matColumnDef="contacts">
-            <th mat-header-cell *matHeaderCellDef>Contatos</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'CUSTOMER.COL_CONTACTS' | translate }}</th>
             <td mat-cell *matCellDef="let row">{{ row.contactCount }}</td>
           </ng-container>
 
           <!-- Actions Column -->
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef class="text-right">Ações</th>
+            <th mat-header-cell *matHeaderCellDef class="text-right">{{ 'CUSTOMER.COL_ACTIONS' | translate }}</th>
             <td mat-cell *matCellDef="let row" class="text-right">
               <button
                 mat-icon-button
@@ -158,7 +160,7 @@ import { BrlCurrencyPipe } from '../../../../shared/pipes/brl-currency.pipe';
         @if (!store.isLoading() && store.customers().length === 0) {
           <div class="empty-state">
             <mat-icon class="empty-icon">business_center</mat-icon>
-            <p class="empty-text">Nenhum cliente encontrado</p>
+            <p class="empty-text">{{ 'CUSTOMER.EMPTY_STATE' | translate }}</p>
           </div>
         }
 

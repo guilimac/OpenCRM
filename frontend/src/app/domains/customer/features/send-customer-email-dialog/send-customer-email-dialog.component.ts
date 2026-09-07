@@ -11,6 +11,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CustomerApiService } from '../../services/customer-api.service';
 import { ContactItem } from '../../models/customer.model';
+import { I18nService } from '../../../../core/services/i18n.service';
+import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
 
 export interface SendCustomerEmailDialogData {
   customerId: string;
@@ -31,37 +33,38 @@ export interface SendCustomerEmailDialogData {
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    TranslatePipe,
   ],
   template: `
     <div class="dialog-container">
       <div class="dialog-header flex-row gap-sm">
         <mat-icon color="primary">email</mat-icon>
-        <h2 mat-dialog-title class="m-0">Enviar E-mail Comercial</h2>
+        <h2 mat-dialog-title class="m-0">{{ 'EMAIL.DIALOG_TITLE' | translate }}</h2>
       </div>
 
-      <p class="company-badge">Cliente: <strong>{{ data.companyName }}</strong></p>
+      <p class="company-badge">{{ 'EMAIL.CUSTOMER_LABEL' | translate }} <strong>{{ data.companyName }}</strong></p>
 
       <mat-dialog-content>
         <form [formGroup]="form" class="flex-col gap-sm">
           <!-- Recipient selection -->
           @if (data.contacts && data.contacts.length > 0) {
             <mat-form-field appearance="outline">
-              <mat-label>Destinatário (Contato)</mat-label>
+              <mat-label>{{ 'EMAIL.RECIPIENT_LABEL' | translate }}</mat-label>
               <mat-select formControlName="contactId">
                 @for (contact of data.contacts; track contact.id) {
                   <mat-option [value]="contact.id">
                     {{ contact.fullName }} ({{ contact.email }})
-                    @if (contact.isPrimary) { [Principal] }
+                    @if (contact.isPrimary) { [{{ 'CUSTOMER.PRIMARY_CONTACT' | translate }}] }
                   </mat-option>
                 }
-                <mat-option value="manual">Outro e-mail personalizado...</mat-option>
+                <mat-option value="manual">{{ 'EMAIL.CUSTOM_EMAIL' | translate }}</mat-option>
               </mat-select>
             </mat-form-field>
           }
 
           @if (!data.contacts?.length || form.get('contactId')?.value === 'manual') {
             <mat-form-field appearance="outline">
-              <mat-label>E-mail do Destinatário</mat-label>
+              <mat-label>{{ 'EMAIL.RECIPIENT_EMAIL' | translate }}</mat-label>
               <input
                 matInput
                 type="email"
@@ -69,27 +72,27 @@ export interface SendCustomerEmailDialogData {
                 placeholder="nome@empresa.com.br"
               />
               @if (form.get('recipientEmail')?.hasError('email')) {
-                <mat-error>Informe um e-mail válido</mat-error>
+                <mat-error>{{ 'CUSTOMER.VALIDATION_EMAIL_INVALID' | translate }}</mat-error>
               }
             </mat-form-field>
           }
 
           <!-- Subject -->
           <mat-form-field appearance="outline">
-            <mat-label>Assunto</mat-label>
+            <mat-label>{{ 'EMAIL.SUBJECT' | translate }}</mat-label>
             <input
               matInput
               formControlName="subject"
               placeholder="Ex: Proposta Comercial Atualizada"
             />
             @if (form.get('subject')?.hasError('required')) {
-              <mat-error>O assunto é obrigatório</mat-error>
+              <mat-error>{{ 'EMAIL.VALIDATION_SUBJECT_REQUIRED' | translate }}</mat-error>
             }
           </mat-form-field>
 
           <!-- Message Body -->
           <mat-form-field appearance="outline">
-            <mat-label>Mensagem</mat-label>
+            <mat-label>{{ 'EMAIL.MESSAGE' | translate }}</mat-label>
             <textarea
               matInput
               rows="6"
@@ -97,7 +100,7 @@ export interface SendCustomerEmailDialogData {
               placeholder="Escreva a mensagem aqui..."
             ></textarea>
             @if (form.get('body')?.hasError('required')) {
-              <mat-error>A mensagem é obrigatória</mat-error>
+              <mat-error>{{ 'EMAIL.VALIDATION_BODY_REQUIRED' | translate }}</mat-error>
             }
           </mat-form-field>
 
@@ -112,7 +115,7 @@ export interface SendCustomerEmailDialogData {
 
       <mat-dialog-actions align="end" class="gap-sm">
         <button mat-button type="button" (click)="onCancel()" [disabled]="isSubmitting()">
-          Cancelar
+          {{ 'COMMON.CANCEL' | translate }}
         </button>
         <button
           mat-flat-button
@@ -125,7 +128,7 @@ export interface SendCustomerEmailDialogData {
           } @else {
             <mat-icon class="icon-sm mr-xs">send</mat-icon>
           }
-          Enviar E-mail
+          {{ 'EMAIL.SEND_BTN' | translate }}
         </button>
       </mat-dialog-actions>
     </div>
@@ -189,6 +192,7 @@ export class SendCustomerEmailDialogComponent {
   private readonly fb = inject(FormBuilder);
   private readonly customerApi = inject(CustomerApiService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly i18n = inject(I18nService);
 
   readonly isSubmitting = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
@@ -229,10 +233,14 @@ export class SendCustomerEmailDialogComponent {
     this.customerApi.sendCustomerEmail(this.data.customerId, payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.snackBar.open('E-mail enviado com sucesso!', 'Fechar', {
-          duration: 3500,
-          panelClass: ['snackbar-success'],
-        });
+        this.snackBar.open(
+          this.i18n.t('EMAIL.SEND_SUCCESS'),
+          this.i18n.t('COMMON.CLOSE'),
+          {
+            duration: 3500,
+            panelClass: ['snackbar-success'],
+          },
+        );
         this.dialogRef.close(true);
       },
       error: (err) => {

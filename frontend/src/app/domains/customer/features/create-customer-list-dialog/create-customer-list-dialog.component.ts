@@ -11,6 +11,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CustomerApiService } from '../../services/customer-api.service';
 import { CustomerSummary } from '../../models/customer.model';
+import { I18nService } from '../../../../core/services/i18n.service';
+import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-create-customer-list-dialog',
@@ -26,32 +28,33 @@ import { CustomerSummary } from '../../models/customer.model';
     MatCheckboxModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    TranslatePipe,
   ],
   template: `
     <div class="dialog-container">
       <div class="dialog-header flex-row gap-sm">
         <mat-icon color="primary">playlist_add</mat-icon>
-        <h2 mat-dialog-title class="m-0">Nova Lista de Clientes</h2>
+        <h2 mat-dialog-title class="m-0">{{ 'CUSTOMER_LISTS.DIALOG_TITLE' | translate }}</h2>
       </div>
 
-      <p class="subtitle">Crie um segmento de clientes para comunicação institucional e campanhas em massa.</p>
+      <p class="subtitle">{{ 'CUSTOMER_LISTS.DIALOG_SUBTITLE' | translate }}</p>
 
       <mat-dialog-content>
         <form [formGroup]="form" class="flex-col gap-sm">
           <mat-form-field appearance="outline">
-            <mat-label>Nome da Lista</mat-label>
+            <mat-label>{{ 'CUSTOMER_LISTS.LIST_NAME' | translate }}</mat-label>
             <input
               matInput
               formControlName="name"
               placeholder="Ex: Clientes VIP - Q4, Leads Prioritários..."
             />
             @if (form.get('name')?.hasError('required')) {
-              <mat-error>O nome da lista é obrigatório</mat-error>
+              <mat-error>{{ 'CUSTOMER_LISTS.VALIDATION_NAME_REQUIRED' | translate }}</mat-error>
             }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Descrição (Opcional)</mat-label>
+            <mat-label>{{ 'CUSTOMER_LISTS.LIST_DESC' | translate }}</mat-label>
             <textarea
               matInput
               rows="2"
@@ -62,14 +65,14 @@ import { CustomerSummary } from '../../models/customer.model';
 
           <div class="customers-section">
             <div class="flex-row space-between align-center mb-xs">
-              <span class="section-title">Selecionar Clientes Membros</span>
-              <span class="badge-count">{{ selectedCustomerIds().length }} selecionado(s)</span>
+              <span class="section-title">{{ 'CUSTOMER_LISTS.SELECT_MEMBERS' | translate }}</span>
+              <span class="badge-count">{{ 'CUSTOMER_LISTS.SELECTED_COUNT' | translate:{ count: selectedCustomerIds().length } }}</span>
             </div>
 
             @if (isLoadingCustomers()) {
               <div class="spinner-inline">
                 <mat-spinner diameter="24"></mat-spinner>
-                <span>Carregando clientes...</span>
+                <span>{{ 'COMMON.LOADING' | translate }}</span>
               </div>
             } @else {
               <div class="customer-picker-list">
@@ -87,7 +90,7 @@ import { CustomerSummary } from '../../models/customer.model';
                   </div>
                 }
                 @if (availableCustomers().length === 0) {
-                  <p class="empty-hint">Nenhum cliente cadastrado ainda.</p>
+                  <p class="empty-hint">{{ 'CUSTOMER.EMPTY_STATE' | translate }}</p>
                 }
               </div>
             }
@@ -104,7 +107,7 @@ import { CustomerSummary } from '../../models/customer.model';
 
       <mat-dialog-actions align="end" class="gap-sm">
         <button mat-button type="button" (click)="onCancel()" [disabled]="isSubmitting()">
-          Cancelar
+          {{ 'COMMON.CANCEL' | translate }}
         </button>
         <button
           mat-flat-button
@@ -117,7 +120,7 @@ import { CustomerSummary } from '../../models/customer.model';
           } @else {
             <mat-icon class="icon-sm mr-xs">check</mat-icon>
           }
-          Criar Lista
+          {{ 'CUSTOMER_LISTS.CREATE_LIST_BTN' | translate }}
         </button>
       </mat-dialog-actions>
     </div>
@@ -239,6 +242,7 @@ export class CreateCustomerListDialogComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly customerApi = inject(CustomerApiService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly i18n = inject(I18nService);
 
   readonly isSubmitting = signal<boolean>(false);
   readonly isLoadingCustomers = signal<boolean>(true);
@@ -292,10 +296,14 @@ export class CreateCustomerListDialogComponent implements OnInit {
     this.customerApi.createCustomerList(payload).subscribe({
       next: (created) => {
         this.isSubmitting.set(false);
-        this.snackBar.open('Lista criada com sucesso!', 'Fechar', {
-          duration: 3500,
-          panelClass: ['snackbar-success'],
-        });
+        this.snackBar.open(
+          this.i18n.t('CUSTOMER_LISTS.LIST_CREATED'),
+          this.i18n.t('COMMON.CLOSE'),
+          {
+            duration: 3500,
+            panelClass: ['snackbar-success'],
+          },
+        );
         this.dialogRef.close(created);
       },
       error: (err) => {

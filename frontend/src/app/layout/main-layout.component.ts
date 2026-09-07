@@ -12,6 +12,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthService } from '../core/auth/auth.service';
 import { ThemeService } from '../core/services/theme.service';
+import { I18nService } from '../core/services/i18n.service';
+import { TranslatePipe } from '../shared/pipes/translate.pipe';
 import { ChangePasswordDialogComponent } from '../core/auth/features/change-password/change-password-dialog.component';
 
 @Component({
@@ -30,6 +32,7 @@ import { ChangePasswordDialogComponent } from '../core/auth/features/change-pass
     MatMenuModule,
     MatDividerModule,
     MatDialogModule,
+    TranslatePipe,
   ],
   template: `
     <mat-sidenav-container class="sidenav-container">
@@ -54,7 +57,7 @@ import { ChangePasswordDialogComponent } from '../core/auth/features/change-pass
             (click)="isMobile() && drawer.close()"
           >
             <mat-icon matListItemIcon>view_kanban</mat-icon>
-            <span matListItemTitle>Funil de Vendas</span>
+            <span matListItemTitle>{{ 'NAV.PIPELINE' | translate }}</span>
           </a>
 
           <a
@@ -64,7 +67,7 @@ import { ChangePasswordDialogComponent } from '../core/auth/features/change-pass
             (click)="isMobile() && drawer.close()"
           >
             <mat-icon matListItemIcon>business</mat-icon>
-            <span matListItemTitle>Clientes & Contas</span>
+            <span matListItemTitle>{{ 'NAV.CUSTOMERS' | translate }}</span>
           </a>
 
           <a
@@ -74,14 +77,14 @@ import { ChangePasswordDialogComponent } from '../core/auth/features/change-pass
             (click)="isMobile() && drawer.close()"
           >
             <mat-icon matListItemIcon>campaign</mat-icon>
-            <span matListItemTitle>Listas & Disparo</span>
+            <span matListItemTitle>{{ 'NAV.CUSTOMER_LISTS' | translate }}</span>
           </a>
         </mat-nav-list>
 
         <div class="sidenav-footer">
           <div class="currency-indicator">
             <mat-icon class="icon-sm">payments</mat-icon>
-            <span>Moeda Base: <strong>BRL (R$)</strong></span>
+            <span>{{ 'NAV.BASE_CURRENCY' | translate }} <strong>BRL (R$)</strong></span>
           </div>
         </div>
       </mat-sidenav>
@@ -100,14 +103,42 @@ import { ChangePasswordDialogComponent } from '../core/auth/features/change-pass
             </button>
           }
 
-          <span class="toolbar-title">Portal de Gestão</span>
+          <span class="toolbar-title">{{ 'NAV.PORTAL_TITLE' | translate }}</span>
           <div class="flex-spacer"></div>
+
+          <!-- Language Selector -->
+          <button
+            mat-button
+            [matMenuTriggerFor]="langMenu"
+            class="lang-btn"
+            [attr.aria-label]="'NAV.LANGUAGE' | translate"
+          >
+            <span class="flag-icon">{{ i18nService.currentLang() === 'pt' ? '🇧🇷' : '🇺🇸' }}</span>
+            <span class="lang-code">{{ i18nService.currentLang().toUpperCase() }}</span>
+            <mat-icon class="icon-xs">arrow_drop_down</mat-icon>
+          </button>
+          <mat-menu #langMenu="matMenu">
+            <button mat-menu-item (click)="i18nService.setLanguage('pt')">
+              <span class="mr-sm">🇧🇷</span>
+              <span>Português (Brasil)</span>
+              @if (i18nService.currentLang() === 'pt') {
+                <mat-icon class="check-icon">check</mat-icon>
+              }
+            </button>
+            <button mat-menu-item (click)="i18nService.setLanguage('en')">
+              <span class="mr-sm">🇺🇸</span>
+              <span>English (US)</span>
+              @if (i18nService.currentLang() === 'en') {
+                <mat-icon class="check-icon">check</mat-icon>
+              }
+            </button>
+          </mat-menu>
 
           <!-- Theme Mode Switcher -->
           <button
             mat-icon-button
             (click)="themeService.toggleTheme()"
-            [attr.aria-label]="themeService.isDarkMode() ? 'Ativar modo claro' : 'Ativar modo escuro'"
+            [attr.aria-label]="(themeService.isDarkMode() ? 'NAV.THEME_LIGHT' : 'NAV.THEME_DARK') | translate"
           >
             <mat-icon>{{ themeService.isDarkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
           </button>
@@ -123,12 +154,12 @@ import { ChangePasswordDialogComponent } from '../core/auth/features/change-pass
             </div>
             <button mat-menu-item (click)="openChangePasswordDialog()">
               <mat-icon>lock_reset</mat-icon>
-              <span>Alterar senha</span>
+              <span>{{ 'NAV.CHANGE_PASSWORD' | translate }}</span>
             </button>
             <mat-divider></mat-divider>
             <button mat-menu-item (click)="authService.logout()">
               <mat-icon>logout</mat-icon>
-              <span>Sair da conta</span>
+              <span>{{ 'NAV.LOGOUT' | translate }}</span>
             </button>
           </mat-menu>
         </mat-toolbar>
@@ -234,6 +265,39 @@ import { ChangePasswordDialogComponent } from '../core/auth/features/change-pass
       width: 1rem;
       height: 1rem;
     }
+    .icon-xs {
+      font-size: 0.9rem;
+      width: 0.9rem;
+      height: 0.9rem;
+      vertical-align: middle;
+    }
+    .lang-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #475569;
+    }
+    :host-context(.dark-theme) .lang-btn {
+      color: #94a3b8;
+    }
+    .flag-icon {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    .lang-code {
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .check-icon {
+      color: #2563eb;
+      margin-left: auto;
+    }
+    :host-context(.dark-theme) .check-icon {
+      color: #60a5fa;
+    }
   `],
 })
 export class MainLayoutComponent {
@@ -241,6 +305,7 @@ export class MainLayoutComponent {
   private readonly dialog = inject(MatDialog);
   readonly authService = inject(AuthService);
   readonly themeService = inject(ThemeService);
+  readonly i18nService = inject(I18nService);
 
   readonly isMobile = signal<boolean>(false);
 

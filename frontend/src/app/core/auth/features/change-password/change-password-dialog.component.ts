@@ -9,6 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../auth.service';
+import { I18nService } from '../../../services/i18n.service';
+import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
 
 export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const newPassword = control.get('newPassword')?.value;
@@ -38,6 +40,7 @@ export const differentPasswordValidator: ValidatorFn = (control: AbstractControl
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    TranslatePipe,
   ],
   template: `
     <div class="dialog-container">
@@ -45,8 +48,8 @@ export const differentPasswordValidator: ValidatorFn = (control: AbstractControl
         <div class="dialog-icon-badge">
           <mat-icon>lock_reset</mat-icon>
         </div>
-        <h2 mat-dialog-title class="dialog-title">Alterar Senha</h2>
-        <p class="dialog-subtitle">Atualize sua senha de acesso ao OpenCRM com segurança</p>
+        <h2 mat-dialog-title class="dialog-title">{{ 'AUTH.CHANGE_PASSWORD_TITLE' | translate }}</h2>
+        <p class="dialog-subtitle">{{ 'AUTH.CHANGE_PASSWORD_SUBTITLE' | translate }}</p>
       </div>
 
       <mat-dialog-content class="dialog-content">
@@ -60,7 +63,7 @@ export const differentPasswordValidator: ValidatorFn = (control: AbstractControl
         <form [formGroup]="form" (ngSubmit)="onSubmit()" id="changePasswordForm" class="dialog-form">
           <!-- Senha Atual -->
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Senha atual</mat-label>
+            <mat-label>{{ 'AUTH.CURRENT_PASSWORD' | translate }}</mat-label>
             <input
               matInput
               [type]="hideCurrentPassword() ? 'password' : 'text'"
@@ -78,13 +81,13 @@ export const differentPasswordValidator: ValidatorFn = (control: AbstractControl
               <mat-icon>{{ hideCurrentPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
             </button>
             @if (form.get('currentPassword')?.hasError('required') && form.get('currentPassword')?.touched) {
-              <mat-error>A senha atual é obrigatória</mat-error>
+              <mat-error>{{ 'AUTH.VALIDATION_CURRENT_PASSWORD_REQUIRED' | translate }}</mat-error>
             }
           </mat-form-field>
 
           <!-- Nova Senha -->
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Nova senha</mat-label>
+            <mat-label>{{ 'AUTH.NEW_PASSWORD' | translate }}</mat-label>
             <input
               matInput
               [type]="hideNewPassword() ? 'password' : 'text'"
@@ -102,19 +105,19 @@ export const differentPasswordValidator: ValidatorFn = (control: AbstractControl
               <mat-icon>{{ hideNewPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
             </button>
             @if (form.get('newPassword')?.hasError('required') && form.get('newPassword')?.touched) {
-              <mat-error>A nova senha é obrigatória</mat-error>
+              <mat-error>{{ 'AUTH.VALIDATION_NEW_PASSWORD_REQUIRED' | translate }}</mat-error>
             }
             @if (form.get('newPassword')?.hasError('minlength') && form.get('newPassword')?.touched) {
-              <mat-error>A nova senha deve ter pelo menos 6 caracteres</mat-error>
+              <mat-error>{{ 'AUTH.VALIDATION_NEW_PASSWORD_MINLENGTH' | translate }}</mat-error>
             }
             @if (form.hasError('samePassword') && form.get('newPassword')?.touched) {
-              <mat-error>A nova senha deve ser diferente da atual</mat-error>
+              <mat-error>{{ 'AUTH.VALIDATION_NEW_PASSWORD_SAME' | translate }}</mat-error>
             }
           </mat-form-field>
 
           <!-- Confirmar Nova Senha -->
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Confirmar nova senha</mat-label>
+            <mat-label>{{ 'AUTH.CONFIRM_PASSWORD' | translate }}</mat-label>
             <input
               matInput
               [type]="hideConfirmPassword() ? 'password' : 'text'"
@@ -132,10 +135,10 @@ export const differentPasswordValidator: ValidatorFn = (control: AbstractControl
               <mat-icon>{{ hideConfirmPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
             </button>
             @if (form.get('confirmPassword')?.hasError('required') && form.get('confirmPassword')?.touched) {
-              <mat-error>A confirmação de senha é obrigatória</mat-error>
+              <mat-error>{{ 'AUTH.VALIDATION_CONFIRM_PASSWORD_REQUIRED' | translate }}</mat-error>
             }
             @if (form.hasError('passwordMismatch') && form.get('confirmPassword')?.touched) {
-              <mat-error>As senhas não conferem</mat-error>
+              <mat-error>{{ 'AUTH.VALIDATION_PASSWORDS_MISMATCH' | translate }}</mat-error>
             }
           </mat-form-field>
         </form>
@@ -143,7 +146,7 @@ export const differentPasswordValidator: ValidatorFn = (control: AbstractControl
 
       <mat-dialog-actions align="end" class="dialog-actions">
         <button mat-button type="button" (click)="onCancel()" [disabled]="isLoading()">
-          Cancelar
+          {{ 'COMMON.CANCEL' | translate }}
         </button>
         <button
           mat-flat-button
@@ -155,7 +158,7 @@ export const differentPasswordValidator: ValidatorFn = (control: AbstractControl
           @if (isLoading()) {
             <mat-spinner diameter="18" class="spinner-inline"></mat-spinner>
           } @else {
-            Salvar Nova Senha
+            {{ 'AUTH.SAVE_NEW_PASSWORD' | translate }}
           }
         </button>
       </mat-dialog-actions>
@@ -242,6 +245,7 @@ export class ChangePasswordDialogComponent {
   private readonly authService = inject(AuthService);
   private readonly dialogRef = inject(MatDialogRef<ChangePasswordDialogComponent>);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly i18n = inject(I18nService);
 
   readonly isLoading = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
@@ -279,11 +283,15 @@ export class ChangePasswordDialogComponent {
       .subscribe({
         next: () => {
           this.isLoading.set(false);
-          this.snackBar.open('Senha alterada com sucesso!', 'OK', {
-            duration: 4000,
-            horizontalPosition: 'center',
-            verticalPosition: 'bottom',
-          });
+          this.snackBar.open(
+            this.i18n.t('AUTH.PASSWORD_CHANGED'),
+            this.i18n.t('AUTH.OK'),
+            {
+              duration: 4000,
+              horizontalPosition: 'center',
+              verticalPosition: 'bottom',
+            },
+          );
           this.dialogRef.close(true);
         },
         error: (err) => {

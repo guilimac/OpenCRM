@@ -10,6 +10,7 @@ import { CustomerApiService } from '../../services/customer-api.service';
 import { CustomerListItem } from '../../models/customer.model';
 import { CreateCustomerListDialogComponent } from '../create-customer-list-dialog/create-customer-list-dialog.component';
 import { SendMassEmailDialogComponent } from '../send-mass-email-dialog/send-mass-email-dialog.component';
+import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-customer-lists',
@@ -21,19 +22,20 @@ import { SendMassEmailDialogComponent } from '../send-mass-email-dialog/send-mas
     MatIconModule,
     MatChipsModule,
     MatProgressSpinnerModule,
+    TranslatePipe,
   ],
   template: `
     <div class="page-container">
       <header class="page-header flex-row space-between align-center">
         <div>
-          <h1 class="page-title">Listas de Clientes & Disparo em Massa</h1>
+          <h1 class="page-title">{{ 'CUSTOMER_LISTS.TITLE' | translate }}</h1>
           <p class="page-subtitle">
-            Gerencie listas segmentadas de clientes e envie comunicados e campanhas por e-mail
+            {{ 'CUSTOMER_LISTS.SUBTITLE' | translate }}
           </p>
         </div>
         <button mat-flat-button color="primary" class="gap-sm" (click)="openCreateListDialog()">
           <mat-icon>add</mat-icon>
-          Nova Lista
+          {{ 'CUSTOMER_LISTS.NEW_LIST' | translate }}
         </button>
       </header>
 
@@ -48,7 +50,7 @@ import { SendMassEmailDialogComponent } from '../send-mass-email-dialog/send-mas
         <table mat-table [dataSource]="lists()" class="full-width" aria-label="Tabela de Listas de Clientes">
           <!-- Name Column -->
           <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef>Nome da Lista</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'CUSTOMER_LISTS.COL_NAME' | translate }}</th>
             <td mat-cell *matCellDef="let row" class="fw-600">
               {{ row.name }}
             </td>
@@ -56,7 +58,7 @@ import { SendMassEmailDialogComponent } from '../send-mass-email-dialog/send-mas
 
           <!-- Description Column -->
           <ng-container matColumnDef="description">
-            <th mat-header-cell *matHeaderCellDef>Descrição</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'CUSTOMER_LISTS.COL_DESC' | translate }}</th>
             <td mat-cell *matCellDef="let row" class="desc-cell">
               {{ row.description || '—' }}
             </td>
@@ -64,18 +66,18 @@ import { SendMassEmailDialogComponent } from '../send-mass-email-dialog/send-mas
 
           <!-- Members Column -->
           <ng-container matColumnDef="members">
-            <th mat-header-cell *matHeaderCellDef>Clientes Membros</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'CUSTOMER_LISTS.COL_MEMBERS' | translate }}</th>
             <td mat-cell *matCellDef="let row">
               <span class="member-chip">
                 <mat-icon class="icon-xs">group</mat-icon>
-                {{ row.memberCount }} cliente(s)
+                {{ 'CUSTOMER_LISTS.MEMBERS_COUNT' | translate:{ count: row.memberCount } }}
               </span>
             </td>
           </ng-container>
 
           <!-- Created Date Column -->
           <ng-container matColumnDef="createdAt">
-            <th mat-header-cell *matHeaderCellDef>Criada em</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'CUSTOMER_LISTS.COL_CREATED_AT' | translate }}</th>
             <td mat-cell *matCellDef="let row">
               {{ row.createdAt | date:'dd/MM/yyyy HH:mm' }}
             </td>
@@ -83,7 +85,7 @@ import { SendMassEmailDialogComponent } from '../send-mass-email-dialog/send-mas
 
           <!-- Actions Column -->
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef class="text-right">Ações</th>
+            <th mat-header-cell *matHeaderCellDef class="text-right">{{ 'COMMON.ACTIONS' | translate }}</th>
             <td mat-cell *matCellDef="let row" class="text-right">
               <button
                 mat-flat-button
@@ -91,10 +93,10 @@ import { SendMassEmailDialogComponent } from '../send-mass-email-dialog/send-mas
                 class="btn-sm mr-xs"
                 (click)="openSendMassEmailDialog(row)"
                 [disabled]="row.memberCount === 0"
-                title="Disparar e-mails para todos os clientes desta lista"
+                [title]="'CUSTOMER_LISTS.BTN_MASS_EMAIL' | translate"
               >
                 <mat-icon class="icon-sm mr-xs">campaign</mat-icon>
-                Disparo em Massa
+                {{ 'CUSTOMER_LISTS.BTN_MASS_EMAIL' | translate }}
               </button>
             </td>
           </ng-container>
@@ -106,11 +108,11 @@ import { SendMassEmailDialogComponent } from '../send-mass-email-dialog/send-mas
         @if (!isLoading() && lists().length === 0) {
           <div class="empty-state">
             <mat-icon class="empty-icon">playlist_add_check</mat-icon>
-            <p class="empty-title">Nenhuma lista criada ainda</p>
-            <p class="empty-text">Crie sua primeira lista para agrupar clientes e enviar comunicados em massa.</p>
+            <p class="empty-title">{{ 'CUSTOMER_LISTS.EMPTY_TITLE' | translate }}</p>
+            <p class="empty-text">{{ 'CUSTOMER_LISTS.EMPTY_TEXT' | translate }}</p>
             <button mat-stroked-button color="primary" class="mt-sm" (click)="openCreateListDialog()">
               <mat-icon>add</mat-icon>
-              Criar Primeira Lista
+              {{ 'CUSTOMER_LISTS.CREATE_FIRST' | translate }}
             </button>
           </div>
         }
