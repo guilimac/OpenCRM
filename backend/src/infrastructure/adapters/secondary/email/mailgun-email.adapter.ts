@@ -58,13 +58,18 @@ ${options.text || '(HTML only)'}`,
     }
 
     try {
-      await this.client.messages.create(this.domain, {
+      const messageData: Record<string, unknown> = {
         from,
         to: toList,
         subject: options.subject,
-        text: options.text,
-        html: options.html,
-      });
+      };
+      if (options.text) messageData['text'] = options.text;
+      if (options.html) messageData['html'] = options.html;
+      if (!options.text && !options.html) {
+        messageData['text'] = options.subject;
+      }
+
+      await (this.client.messages.create as any)(this.domain, messageData);
 
       this.logger.log(`Email successfully dispatched via Mailgun to ${toList.join(', ')}`);
       return Result.ok<void>();

@@ -70,3 +70,22 @@ export class ChangePasswordDto {
   @MinLength(6)
   newPassword!: string;
 }
+
+export class ForgotPasswordRequestDto {
+  @ApiProperty({ example: 'usuario@empresa.com' })
+  @IsEmail()
+  email!: string;
+}
+
+export class ResetPasswordRequestDto {
+  @ApiProperty({ example: '4f7b2c9a...' })
+  @IsString()
+  @IsNotEmpty()
+  token!: string;
+
+  @ApiProperty({ example: 'NovaSenhaForte123!' })
+  @IsString()
+  @MinLength(6)
+  newPassword!: string;
+}
+

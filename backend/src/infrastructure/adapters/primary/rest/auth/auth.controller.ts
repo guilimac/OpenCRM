@@ -15,12 +15,16 @@ import { RegisterUserUseCase } from '../../../../../core/application/auth/regist
 import { LoginUserUseCase } from '../../../../../core/application/auth/login-user.use-case.js';
 import { RefreshTokenUseCase } from '../../../../../core/application/auth/refresh-token.use-case.js';
 import { ChangePasswordUseCase } from '../../../../../core/application/auth/change-password.use-case.js';
+import { RequestPasswordResetUseCase } from '../../../../../core/application/auth/request-password-reset.use-case.js';
+import { ResetPasswordUseCase } from '../../../../../core/application/auth/reset-password.use-case.js';
 import { TOKEN_PORT, type ITokenPort, type AccessTokenPayload } from '../../../../../core/application/common/ports/token.port.js';
 import {
   RegisterRequestDto,
   LoginRequestDto,
   RefreshTokenRequestDto,
   ChangePasswordDto,
+  ForgotPasswordRequestDto,
+  ResetPasswordRequestDto,
 } from './dto/auth.dto.js';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard.js';
 import { CurrentUser } from '../decorators/current-user.decorator.js';
@@ -33,6 +37,8 @@ export class AuthController {
     private readonly loginUserUseCase: LoginUserUseCase,
     private readonly refreshTokenUseCase: RefreshTokenUseCase,
     private readonly changePasswordUseCase: ChangePasswordUseCase,
+    private readonly requestPasswordResetUseCase: RequestPasswordResetUseCase,
+    private readonly resetPasswordUseCase: ResetPasswordUseCase,
     @Inject(TOKEN_PORT)
     private readonly tokenPort: ITokenPort,
   ) {}
@@ -126,6 +132,31 @@ export class AuthController {
       currentPassword: dto.currentPassword,
       newPassword: dto.newPassword,
     });
+    if (result.isFailure) {
+      throw new BadRequestException(result.error);
+    }
+    return result.getValue();
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Request password reset email' })
+  @ApiResponse({ status: 200, description: 'Password reset email initiated' })
+  async forgotPassword(@Body() dto: ForgotPasswordRequestDto) {
+    const result = await this.requestPasswordResetUseCase.execute(dto);
+    if (result.isFailure) {
+      throw new BadRequestException(result.error);
+    }
+    return result.getValue();
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Reset password using token received via email' })
+  @ApiResponse({ status: 200, description: 'Password successfully reset' })
+  @ApiResponse({ status: 400, description: 'Invalid/expired token or validation failure' })
+  async resetPassword(@Body() dto: ResetPasswordRequestDto) {
+    const result = await this.resetPasswordUseCase.execute(dto);
     if (result.isFailure) {
       throw new BadRequestException(result.error);
     }

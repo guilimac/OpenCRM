@@ -7,6 +7,8 @@ import { RegisterUserUseCase } from '../../core/application/auth/register-user.u
 import { LoginUserUseCase } from '../../core/application/auth/login-user.use-case.js';
 import { RefreshTokenUseCase } from '../../core/application/auth/refresh-token.use-case.js';
 import { ChangePasswordUseCase } from '../../core/application/auth/change-password.use-case.js';
+import { RequestPasswordResetUseCase } from '../../core/application/auth/request-password-reset.use-case.js';
+import { ResetPasswordUseCase } from '../../core/application/auth/reset-password.use-case.js';
 import { AuthController } from '../adapters/primary/rest/auth/auth.controller.js';
 import { JwtAuthGuard } from '../adapters/primary/rest/guards/jwt-auth.guard.js';
 
@@ -32,8 +34,19 @@ import { JwtAuthGuard } from '../adapters/primary/rest/guards/jwt-auth.guard.js'
     LoginUserUseCase,
     RefreshTokenUseCase,
     ChangePasswordUseCase,
+    RequestPasswordResetUseCase,
+    ResetPasswordUseCase,
     JwtAuthGuard,
   ],
-  exports: [TOKEN_PORT, JwtAuthGuard, RegisterUserUseCase, LoginUserUseCase, RefreshTokenUseCase, ChangePasswordUseCase],
+  exports: [
+    TOKEN_PORT,
+    JwtAuthGuard,
+    RegisterUserUseCase,
+    LoginUserUseCase,
+    RefreshTokenUseCase,
+    ChangePasswordUseCase,
+    RequestPasswordResetUseCase,
+    ResetPasswordUseCase,
+  ],
 })
 export class AuthModule {}
