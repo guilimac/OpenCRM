@@ -6,12 +6,19 @@ import {
   CustomerSummary,
   PaginatedCustomers,
   CreateCustomerForm,
+  SendCustomerEmailPayload,
+  CustomerListItem,
+  CustomerListDetail,
+  CreateCustomerListPayload,
+  SendMassEmailPayload,
+  MassEmailResult,
 } from '../models/customer.model';
 
 @Injectable({ providedIn: 'root' })
 export class CustomerApiService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = '/api/v1/customers';
+  private readonly listsUrl = '/api/v1/customer-lists';
 
   list(options: {
     page?: number;
@@ -35,4 +42,37 @@ export class CustomerApiService {
   create(data: CreateCustomerForm): Observable<CustomerSummary> {
     return this.http.post<CustomerSummary>(this.baseUrl, data);
   }
+
+  sendCustomerEmail(
+    customerId: string,
+    payload: SendCustomerEmailPayload,
+  ): Observable<{ success: boolean; message: string; data: any }> {
+    return this.http.post<{ success: boolean; message: string; data: any }>(
+      `${this.baseUrl}/${customerId}/send-email`,
+      payload,
+    );
+  }
+
+  listCustomerLists(): Observable<{ data: CustomerListItem[]; total: number }> {
+    return this.http.get<{ data: CustomerListItem[]; total: number }>(this.listsUrl);
+  }
+
+  getCustomerListById(id: string): Observable<CustomerListDetail> {
+    return this.http.get<CustomerListDetail>(`${this.listsUrl}/${id}`);
+  }
+
+  createCustomerList(payload: CreateCustomerListPayload): Observable<CustomerListItem> {
+    return this.http.post<CustomerListItem>(this.listsUrl, payload);
+  }
+
+  sendMassEmail(
+    listId: string,
+    payload: SendMassEmailPayload,
+  ): Observable<{ success: boolean; message: string; data: MassEmailResult }> {
+    return this.http.post<{ success: boolean; message: string; data: MassEmailResult }>(
+      `${this.listsUrl}/${listId}/send-mass-email`,
+      payload,
+    );
+  }
 }
+

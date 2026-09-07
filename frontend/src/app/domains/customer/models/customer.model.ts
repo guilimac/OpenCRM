@@ -51,3 +51,49 @@ export interface CreateCustomerForm {
     title?: string;
   };
 }
+
+export interface SendCustomerEmailPayload {
+  contactId?: string;
+  recipientEmail?: string;
+  subject: string;
+  body: string;
+}
+
+export interface CustomerListItem {
+  id: string;
+  name: string;
+  description?: string | null;
+  memberCount: number;
+  customerIds: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CustomerListDetail extends CustomerListItem {
+  customers: Array<{
+    id: string;
+    companyName: string;
+    industry?: string | null;
+    primaryContactEmail?: string | null;
+    primaryContactName?: string | null;
+  }>;
+}
+
+export interface CreateCustomerListPayload {
+  name: string;
+  description?: string;
+  customerIds?: string[];
+}
+
+export interface SendMassEmailPayload {
+  subject: string;
+  body: string;
+}
+
+export interface MassEmailResult {
+  totalRecipients: number;
+  sentCount: number;
+  failedCount: number;
+  errors: Array<{ customerId: string; companyName?: string; reason: string }>;
+}
+

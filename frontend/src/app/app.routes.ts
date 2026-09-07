@@ -56,6 +56,13 @@ export const routes: Routes = [
             (m) => m.CustomerListComponent,
           ),
       },
+      {
+        path: 'customer-lists',
+        loadComponent: () =>
+          import('./domains/customer/features/customer-lists/customer-lists.component').then(
+            (m) => m.CustomerListsComponent,
+          ),
+      },
     ],
   },
   {

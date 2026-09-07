@@ -10,7 +10,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { CustomerStore } from '../../state/customer.store';
+import { CustomerApiService } from '../../services/customer-api.service';
+import { CustomerSummary } from '../../models/customer.model';
+import { SendCustomerEmailDialogComponent } from '../send-customer-email-dialog/send-customer-email-dialog.component';
 import { StatusBadgeComponent } from '../../../../shared/ui/status-badge/status-badge.component';
 import { BrlCurrencyPipe } from '../../../../shared/pipes/brl-currency.pipe';
 
@@ -126,7 +130,16 @@ import { BrlCurrencyPipe } from '../../../../shared/pipes/brl-currency.pipe';
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef class="text-right">Ações</th>
             <td mat-cell *matCellDef="let row" class="text-right">
-              <button mat-icon-button color="primary" aria-label="Visualizar cliente">
+              <button
+                mat-icon-button
+                color="primary"
+                (click)="openSendEmailDialog(row)"
+                aria-label="Enviar e-mail para cliente"
+                title="Enviar E-mail"
+              >
+                <mat-icon>mail</mat-icon>
+              </button>
+              <button mat-icon-button color="primary" aria-label="Visualizar cliente" title="Visualizar">
                 <mat-icon>visibility</mat-icon>
               </button>
             </td>
@@ -251,6 +264,9 @@ import { BrlCurrencyPipe } from '../../../../shared/pipes/brl-currency.pipe';
 })
 export class CustomerListComponent implements OnInit {
   readonly store = inject(CustomerStore);
+  private readonly dialog = inject(MatDialog);
+  private readonly customerApi = inject(CustomerApiService);
+
   readonly displayedColumns = [
     'companyName',
     'industry',
@@ -262,6 +278,31 @@ export class CustomerListComponent implements OnInit {
 
   ngOnInit(): void {
     this.store.loadCustomers();
+  }
+
+  openSendEmailDialog(customer: CustomerSummary): void {
+    this.customerApi.getById(customer.id).subscribe({
+      next: (detail) => {
+        this.dialog.open(SendCustomerEmailDialogComponent, {
+          width: '520px',
+          data: {
+            customerId: customer.id,
+            companyName: customer.companyName,
+            contacts: detail.contacts,
+          },
+        });
+      },
+      error: () => {
+        this.dialog.open(SendCustomerEmailDialogComponent, {
+          width: '520px',
+          data: {
+            customerId: customer.id,
+            companyName: customer.companyName,
+            contacts: [],
+          },
+        });
+      },
+    });
   }
 
   onSearchChange(search: string): void {

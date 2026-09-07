@@ -66,6 +66,16 @@ import { ChangePasswordDialogComponent } from '../core/auth/features/change-pass
             <mat-icon matListItemIcon>business</mat-icon>
             <span matListItemTitle>Clientes & Contas</span>
           </a>
+
+          <a
+            mat-list-item
+            routerLink="/customer-lists"
+            routerLinkActive="active-link"
+            (click)="isMobile() && drawer.close()"
+          >
+            <mat-icon matListItemIcon>campaign</mat-icon>
+            <span matListItemTitle>Listas & Disparo</span>
+          </a>
         </mat-nav-list>
 
         <div class="sidenav-footer">
