@@ -29,7 +29,7 @@ import { AuthService } from '../../auth.service';
       <mat-card class="signup-card card-elevation">
         <mat-card-header class="signup-header">
           <div class="brand-badge">
-            <mat-icon class="brand-icon">hub</mat-icon>
+            <img src="/images/opencrm-logo.png" alt="OpenCRM Logo" class="brand-logo-img" />
           </div>
           <mat-card-title class="brand-title">Criar Conta no OpenCRM</mat-card-title>
           <mat-card-subtitle>Comece a gerenciar clientes e oportunidades hoje mesmo</mat-card-subtitle>
@@ -157,15 +157,20 @@ import { AuthService } from '../../auth.service';
       margin-bottom: 1.5rem;
     }
     .brand-badge {
-      width: 48px;
-      height: 48px;
-      background: #2563eb;
-      color: #ffffff;
-      border-radius: 12px;
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 0.75rem;
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+    .brand-logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
     .brand-title {
       font-size: 1.5rem;

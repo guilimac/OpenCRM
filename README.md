@@ -1,4 +1,19 @@
-# OpenCRM - Enterprise CRM Platform
+<p align="center">
+  <img src="frontend/public/images/opencrm-logo.png" alt="OpenCRM Logo" width="140" />
+</p>
+
+<h1 align="center">OpenCRM - Enterprise CRM Platform</h1>
+
+<p align="center">
+  <strong>Modern, Secure & Scalable Customer Relationship Management Platform</strong><br>
+  Built with NestJS Hexagonal Architecture & Angular 22 Domain-Driven Design
+</p>
+
+<p align="center">
+  <img src="frontend/public/images/dashboard-thumbnail.jpg" alt="OpenCRM Dashboard Mockup" width="100%" />
+</p>
+
+---
 
 A robust, enterprise-ready Customer Relationship Management web application engineered with modern architectural standards:
 - **Backend**: NestJS adhering strictly to **Hexagonal Architecture (Ports and Adapters)**.
@@ -161,6 +176,10 @@ erDiagram
 3. **Customer Lists (N:M)**: Dynamic and static segmented groups of customers for mass mailing and marketing campaigns, connected through the `customer_list_members` junction table.
 4. **Sales Pipeline & Opportunities (1:N)**: Deals originate from customer accounts, are assigned to a sales representative owner, and support multi-currency conversion with BRL as baseline.
 5. **Customer Interactions Timeline (Polymorphic Association)**: Records calls, notes, direct commercial emails (with file attachments), and mass campaigns. Associated with a Customer, optional Contact, and optional Opportunity.
+
+<p align="center">
+  <img src="frontend/public/images/features-thumbnail.jpg" alt="OpenCRM Connected Architecture Modules" width="100%" />
+</p>
 
 ---
 
