@@ -78,6 +78,10 @@ import { AuthService } from '../../auth.service';
               }
             </mat-form-field>
 
+            <div class="forgot-link-wrapper">
+              <a routerLink="/forgot-password" class="forgot-link">Esqueceu sua senha?</a>
+            </div>
+
             <button
               mat-flat-button
               color="primary"
@@ -193,6 +197,21 @@ import { AuthService } from '../../auth.service';
       text-decoration: none;
     }
     .link-btn:hover {
+      text-decoration: underline;
+    }
+    .forgot-link-wrapper {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: -0.25rem;
+      margin-bottom: 0.25rem;
+    }
+    .forgot-link {
+      color: #2563eb;
+      font-size: 0.8rem;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .forgot-link:hover {
       text-decoration: underline;
     }
   `],

@@ -18,6 +18,20 @@ export const routes: Routes = [
     pathMatch: 'full',
   },
   {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./core/auth/features/forgot-password/forgot-password.component').then(
+        (m) => m.ForgotPasswordComponent,
+      ),
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./core/auth/features/reset-password/reset-password.component').then(
+        (m) => m.ResetPasswordComponent,
+      ),
+  },
+  {
     path: '',
     loadComponent: () =>
       import('./layout/main-layout.component').then((m) => m.MainLayoutComponent),
