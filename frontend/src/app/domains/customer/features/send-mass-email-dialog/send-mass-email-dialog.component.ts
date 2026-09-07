@@ -10,10 +10,11 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CustomerApiService } from '../../services/customer-api.service';
-import { CustomerListItem, MassEmailResult } from '../../models/customer.model';
+import { CustomerListItem, MassEmailResult, EmailAttachment } from '../../models/customer.model';
 import { I18nService } from '../../../../core/services/i18n.service';
 import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
 import { HtmlEditorComponent } from '../../../../shared/ui/html-editor/html-editor.component';
+import { FileAttachmentsComponent } from '../../../../shared/ui/file-attachments/file-attachments.component';
 
 export interface SendMassEmailDialogData {
   list: CustomerListItem;
@@ -34,6 +35,7 @@ export interface SendMassEmailDialogData {
     MatProgressSpinnerModule,
     TranslatePipe,
     HtmlEditorComponent,
+    FileAttachmentsComponent,
   ],
   template: `
     <div class="dialog-container">
@@ -98,6 +100,12 @@ export interface SendMassEmailDialogData {
               <div class="field-error">{{ 'EMAIL.VALIDATION_BODY_REQUIRED' | translate }}</div>
             }
           </div>
+
+          <!-- File Attachments -->
+          <app-file-attachments
+            [(attachments)]="attachments"
+            [disabled]="isSubmitting() || !!sendResult()"
+          ></app-file-attachments>
 
           @if (sendResult()) {
             <div class="success-result">
@@ -312,6 +320,7 @@ export class SendMassEmailDialogComponent {
   readonly isSubmitting = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
   readonly sendResult = signal<MassEmailResult | null>(null);
+  readonly attachments = signal<EmailAttachment[]>([]);
 
   readonly templateTags = [
     '{{companyName}}',
@@ -345,6 +354,7 @@ export class SendMassEmailDialogComponent {
     const payload = {
       subject: this.form.get('subject')!.value!,
       body: this.form.get('body')!.value!,
+      attachments: this.attachments().length > 0 ? this.attachments() : undefined,
     };
 
     this.customerApi.sendMassEmail(this.data.list.id, payload).subscribe({

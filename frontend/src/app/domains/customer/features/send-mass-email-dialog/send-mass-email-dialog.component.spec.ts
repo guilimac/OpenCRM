@@ -104,4 +104,35 @@ describe('SendMassEmailDialogComponent', () => {
     expect(component.isSubmitting()).toBe(false);
     expect(component.errorMessage()).toBe('Serviço temporariamente indisponível');
   });
+
+  it('should include attachments in mass email payload when present', () => {
+    const mockResult = {
+      totalRecipients: 2,
+      sentCount: 2,
+      failedCount: 0,
+      errors: [],
+    };
+    customerApiMock.sendMassEmail.mockReturnValue(of({ data: mockResult }));
+
+    component.form.patchValue({
+      subject: 'Campanha com Catálogo',
+      body: '<p>Segue catálogo anexo</p>',
+    });
+
+    const mockAttachment = {
+      filename: 'catalogo.pdf',
+      content: 'data:application/pdf;base64,JVBERi0xLjQK...',
+      contentType: 'application/pdf',
+      size: 5120,
+    };
+    component.attachments.set([mockAttachment]);
+
+    component.onSubmit();
+
+    expect(customerApiMock.sendMassEmail).toHaveBeenCalledWith('list-1', {
+      subject: 'Campanha com Catálogo',
+      body: '<p>Segue catálogo anexo</p>',
+      attachments: [mockAttachment],
+    });
+  });
 });

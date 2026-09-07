@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsArray, IsNotEmpty, IsOptional, IsString, MinLength, ValidateNested } from 'class-validator';
+import { EmailAttachmentDto } from '../../customer/dto/customer.dto.js';
 
 export class CreateCustomerListDto {
   @ApiProperty({ example: 'Clientes VIP e Contas Estratégicas' })
@@ -36,4 +38,11 @@ export class SendMassEmailDto {
   @IsString()
   @IsNotEmpty()
   body!: string;
+
+  @ApiPropertyOptional({ type: [EmailAttachmentDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => EmailAttachmentDto)
+  attachments?: EmailAttachmentDto[];
 }

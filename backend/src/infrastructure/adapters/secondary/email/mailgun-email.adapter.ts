@@ -46,11 +46,15 @@ export class MailgunEmailAdapter implements IEmailPort {
 
     // Fallback simulation mode if Mailgun is not configured
     if (!this.client || !this.domain) {
+      const attachmentInfo = options.attachments?.length
+        ? `\nAttachments (${options.attachments.length}): ${options.attachments.map((a) => `${a.filename}${a.size ? ` (${Math.round(a.size / 1024)}KB)` : ''}`).join(', ')}`
+        : '';
+
       this.logger.log(
         `📬 [SIMULATION EMAIL]
 To: ${toList.join(', ')}
 From: ${from}
-Subject: ${options.subject}
+Subject: ${options.subject}${attachmentInfo}
 Body (Text):
 ${options.text || '(HTML only)'}`,
       );
@@ -67,6 +71,24 @@ ${options.text || '(HTML only)'}`,
       if (options.html) messageData['html'] = options.html;
       if (!options.text && !options.html) {
         messageData['text'] = options.subject;
+      }
+
+      if (options.attachments && options.attachments.length > 0) {
+        messageData['attachment'] = options.attachments.map((att) => {
+          const dataBuffer = Buffer.isBuffer(att.content)
+            ? att.content
+            : Buffer.from(
+                att.content.includes(';base64,')
+                  ? att.content.split(';base64,')[1]
+                  : att.content,
+                'base64',
+              );
+          return {
+            data: dataBuffer,
+            filename: att.filename,
+            contentType: att.contentType,
+          };
+        });
       }
 
       await (this.client.messages.create as any)(this.domain, messageData);

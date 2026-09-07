@@ -99,4 +99,31 @@ describe('SendCustomerEmailDialogComponent', () => {
     expect(component.isSubmitting()).toBe(false);
     expect(component.errorMessage()).toBe('Erro ao conectar no servidor de e-mail');
   });
+
+  it('should include attachments in payload when attached', () => {
+    customerApiMock.sendCustomerEmail.mockReturnValue(of({ success: true }));
+
+    component.form.patchValue({
+      subject: 'Proposta com anexo',
+      body: 'Segue proposta.',
+    });
+
+    const mockAttachment = {
+      filename: 'proposta.pdf',
+      content: 'data:application/pdf;base64,JVBERi0xLjQK...',
+      contentType: 'application/pdf',
+      size: 1024,
+    };
+    component.attachments.set([mockAttachment]);
+
+    component.onSubmit();
+
+    expect(customerApiMock.sendCustomerEmail).toHaveBeenCalledWith('cust-1', {
+      contactId: 'cont-1',
+      recipientEmail: undefined,
+      subject: 'Proposta com anexo',
+      body: 'Segue proposta.',
+      attachments: [mockAttachment],
+    });
+  });
 });

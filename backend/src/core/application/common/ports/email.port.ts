@@ -1,5 +1,12 @@
 import { Result } from '../../../domain/common/result.js';
 
+export interface EmailAttachment {
+  filename: string;
+  content: Buffer | string; // Buffer or Base64 string
+  contentType?: string;
+  size?: number;
+}
+
 export interface SendEmailOptions {
   to: string | string[];
   subject: string;
@@ -7,6 +14,7 @@ export interface SendEmailOptions {
   html?: string;
   from?: string;
   replyTo?: string;
+  attachments?: EmailAttachment[];
 }
 
 export const EMAIL_PORT = Symbol('EMAIL_PORT');

@@ -8,6 +8,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsArray,
   ValidateNested,
   Min,
 } from 'class-validator';
@@ -107,6 +108,28 @@ export class CustomerQueryDto {
   status?: string;
 }
 
+export class EmailAttachmentDto {
+  @ApiProperty({ example: 'proposta.pdf' })
+  @IsString()
+  @IsNotEmpty()
+  filename!: string;
+
+  @ApiProperty({ example: 'data:application/pdf;base64,JVBERi0xLjQK...' })
+  @IsString()
+  @IsNotEmpty()
+  content!: string;
+
+  @ApiPropertyOptional({ example: 'application/pdf' })
+  @IsOptional()
+  @IsString()
+  contentType?: string;
+
+  @ApiPropertyOptional({ example: 1048576 })
+  @IsOptional()
+  @IsNumber()
+  size?: number;
+}
+
 export class SendCustomerEmailRequestDto {
   @ApiPropertyOptional({ example: 'cont-uuid-123' })
   @IsOptional()
@@ -127,5 +150,12 @@ export class SendCustomerEmailRequestDto {
   @IsString()
   @IsNotEmpty()
   body!: string;
+
+  @ApiPropertyOptional({ type: [EmailAttachmentDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => EmailAttachmentDto)
+  attachments?: EmailAttachmentDto[];
 }
 

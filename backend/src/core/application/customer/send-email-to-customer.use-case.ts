@@ -13,6 +13,7 @@ import { Interaction } from '../../domain/interaction/interaction.entity.js';
 import {
   EMAIL_PORT,
   type IEmailPort,
+  type EmailAttachment,
 } from '../common/ports/email.port.js';
 
 export interface SendEmailToCustomerCommand {
@@ -23,6 +24,7 @@ export interface SendEmailToCustomerCommand {
   recipientEmail?: string;
   subject: string;
   body: string;
+  attachments?: EmailAttachment[];
 }
 
 export interface SendEmailToCustomerResponse {
@@ -104,6 +106,7 @@ export class SendEmailToCustomerUseCase {
       subject: command.subject,
       text: plainText,
       html: htmlBody,
+      attachments: command.attachments,
     });
 
     if (emailResult.isFailure) {
@@ -112,6 +115,10 @@ export class SendEmailToCustomerUseCase {
 
     // Log interaction
     const now = new Date();
+    const attachmentNote = command.attachments?.length
+      ? `\n\n[Anexos (${command.attachments.length}): ${command.attachments.map((a) => a.filename).join(', ')}]`
+      : '';
+
     const interactionOrError = Interaction.create(
       {
         orgId: command.orgId,
@@ -120,7 +127,7 @@ export class SendEmailToCustomerUseCase {
         contactId: resolvedContact?.id ?? null,
         type: 'EMAIL',
         subject: command.subject,
-        description: command.body,
+        description: `${command.body}${attachmentNote}`,
         outcome: 'SENT',
         completedAt: now,
         createdAt: now,

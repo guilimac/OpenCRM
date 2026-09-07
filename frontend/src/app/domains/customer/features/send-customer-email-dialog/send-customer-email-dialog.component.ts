@@ -10,10 +10,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CustomerApiService } from '../../services/customer-api.service';
-import { ContactItem } from '../../models/customer.model';
+import { ContactItem, EmailAttachment } from '../../models/customer.model';
 import { I18nService } from '../../../../core/services/i18n.service';
 import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
 import { HtmlEditorComponent } from '../../../../shared/ui/html-editor/html-editor.component';
+import { FileAttachmentsComponent } from '../../../../shared/ui/file-attachments/file-attachments.component';
 
 export interface SendCustomerEmailDialogData {
   customerId: string;
@@ -36,6 +37,7 @@ export interface SendCustomerEmailDialogData {
     MatProgressSpinnerModule,
     TranslatePipe,
     HtmlEditorComponent,
+    FileAttachmentsComponent,
   ],
   template: `
     <div class="dialog-container">
@@ -105,6 +107,12 @@ export interface SendCustomerEmailDialogData {
               <div class="field-error">{{ 'EMAIL.VALIDATION_BODY_REQUIRED' | translate }}</div>
             }
           </div>
+
+          <!-- File Attachments -->
+          <app-file-attachments
+            [(attachments)]="attachments"
+            [disabled]="isSubmitting()"
+          ></app-file-attachments>
 
           @if (errorMessage()) {
             <div class="error-alert">
@@ -218,6 +226,7 @@ export class SendCustomerEmailDialogComponent {
 
   readonly isSubmitting = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly attachments = signal<EmailAttachment[]>([]);
 
   readonly form = this.fb.group({
     contactId: [''],
@@ -250,6 +259,7 @@ export class SendCustomerEmailDialogComponent {
         : undefined,
       subject: this.form.get('subject')!.value!,
       body: this.form.get('body')!.value!,
+      attachments: this.attachments().length > 0 ? this.attachments() : undefined,
     };
 
     this.customerApi.sendCustomerEmail(this.data.customerId, payload).subscribe({

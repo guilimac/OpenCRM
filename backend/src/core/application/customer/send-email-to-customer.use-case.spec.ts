@@ -108,6 +108,40 @@ describe('SendEmailToCustomerUseCase', () => {
     );
   });
 
+  it('should send email with attachments and record them in interaction description', async () => {
+    customerRepo.findById.mockResolvedValue(mockCustomer);
+
+    const attachments = [
+      {
+        filename: 'contrato.pdf',
+        content: 'JVBERi0xLjQK...',
+        contentType: 'application/pdf',
+        size: 2048,
+      },
+    ];
+
+    const result = await useCase.execute({
+      orgId: 'org-1',
+      userId: 'user-1',
+      customerId: 'cust-1',
+      subject: 'Contrato de Serviços',
+      body: 'Segue o contrato anexo.',
+      attachments,
+    });
+
+    expect(result.isSuccess).toBe(true);
+    expect(emailPort.sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'carlos@acme.com',
+        subject: 'Contrato de Serviços',
+        attachments,
+      }),
+    );
+    expect(interactionRepo.save).toHaveBeenCalledTimes(1);
+    const savedInteraction = interactionRepo.save.mock.calls[0][0];
+    expect(savedInteraction.description).toContain('[Anexos (1): contrato.pdf]');
+  });
+
   it('should fail if subject or body is missing', async () => {
     const res1 = await useCase.execute({
       orgId: 'org-1',

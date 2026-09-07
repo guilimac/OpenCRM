@@ -38,4 +38,28 @@ describe('MailgunEmailAdapter', () => {
 
     expect(result.isSuccess).toBe(true);
   });
+
+  it('should handle attachments in simulation mode', async () => {
+    const configService = {
+      get: vi.fn().mockReturnValue(undefined),
+    } as unknown as ConfigService;
+
+    const adapter = new MailgunEmailAdapter(configService);
+
+    const result = await adapter.sendEmail({
+      to: 'client@example.com',
+      subject: 'Proposta com anexo',
+      text: 'Segue proposta em anexo.',
+      attachments: [
+        {
+          filename: 'proposta.pdf',
+          content: 'JVBERi0xLjQK...',
+          contentType: 'application/pdf',
+          size: 1024,
+        },
+      ],
+    });
+
+    expect(result.isSuccess).toBe(true);
+  });
 });

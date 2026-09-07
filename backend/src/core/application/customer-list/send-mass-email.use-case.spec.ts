@@ -213,4 +213,51 @@ describe('SendMassEmailUseCase', () => {
       }),
     );
   });
+
+  it('should forward attachments to emailPort and record attachments in interactions during mass dispatch', async () => {
+    listRepo.findById.mockResolvedValue(mockList);
+    customerRepo.findById.mockImplementation(async (_orgId: string, id: string) => {
+      if (id === 'cust-1') return customer1;
+      if (id === 'cust-2') return customer2;
+      return null;
+    });
+
+    const attachments = [
+      {
+        filename: 'catalogo.pdf',
+        content: 'JVBERi0xLjQK...',
+        contentType: 'application/pdf',
+        size: 5120,
+      },
+    ];
+
+    const result = await useCase.execute({
+      orgId: 'org-1',
+      userId: 'user-sender',
+      customerListId: 'list-1',
+      subject: 'Novo Catálogo',
+      body: 'Confira nosso catálogo anexo.',
+      attachments,
+    });
+
+    expect(result.isSuccess).toBe(true);
+    expect(emailPort.sendEmail).toHaveBeenCalledTimes(2);
+    expect(emailPort.sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'lucas@techbrasil.com',
+        subject: 'Novo Catálogo',
+        attachments,
+      }),
+    );
+    expect(emailPort.sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'renata@agrosul.com',
+        subject: 'Novo Catálogo',
+        attachments,
+      }),
+    );
+    expect(interactionRepo.save).toHaveBeenCalledTimes(2);
+    const firstInteraction = interactionRepo.save.mock.calls[0][0];
+    expect(firstInteraction.description).toContain('[Anexos (1): catalogo.pdf]');
+  });
 });

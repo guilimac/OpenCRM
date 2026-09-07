@@ -52,11 +52,19 @@ export interface CreateCustomerForm {
   };
 }
 
+export interface EmailAttachment {
+  filename: string;
+  content: string; // Base64 data string
+  contentType: string;
+  size: number;
+}
+
 export interface SendCustomerEmailPayload {
   contactId?: string;
   recipientEmail?: string;
   subject: string;
   body: string;
+  attachments?: EmailAttachment[];
 }
 
 export interface CustomerListItem {
@@ -88,6 +96,7 @@ export interface CreateCustomerListPayload {
 export interface SendMassEmailPayload {
   subject: string;
   body: string;
+  attachments?: EmailAttachment[];
 }
 
 export interface MassEmailResult {

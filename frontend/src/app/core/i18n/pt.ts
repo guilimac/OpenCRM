@@ -107,6 +107,13 @@ export const pt = {
     VALIDATION_SUBJECT_REQUIRED: 'O assunto é obrigatório',
     VALIDATION_BODY_REQUIRED: 'A mensagem é obrigatória',
     MESSAGE_PLACEHOLDER: 'Escreva a mensagem aqui...',
+    ATTACHMENTS_LABEL: 'Anexos',
+    ATTACH_FILES_BTN: 'Anexar arquivos',
+    MAX_SIZE_INFO: 'Máximo de 10MB por arquivo (até 20MB no total)',
+    FILE_TOO_LARGE: 'O arquivo "{{name}}" excede o limite máximo de 10MB.',
+    TOTAL_SIZE_EXCEEDED: 'O tamanho total dos arquivos excede o limite de 20MB.',
+    REMOVE_ATTACHMENT: 'Remover anexo',
+    DROP_FILES_HERE: 'Solte arquivos aqui ou clique para selecionar',
   },
   HTML_EDITOR: {
     BOLD: 'Negrito',

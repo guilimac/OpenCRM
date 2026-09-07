@@ -118,6 +118,7 @@ export class CustomerListController {
       customerListId: id,
       subject: dto.subject,
       body: dto.body,
+      attachments: dto.attachments,
     });
 
     if (result.isFailure) {

@@ -107,6 +107,13 @@ export const en = {
     VALIDATION_SUBJECT_REQUIRED: 'Subject is required',
     VALIDATION_BODY_REQUIRED: 'Message body is required',
     MESSAGE_PLACEHOLDER: 'Write your message here...',
+    ATTACHMENTS_LABEL: 'Attachments',
+    ATTACH_FILES_BTN: 'Attach files',
+    MAX_SIZE_INFO: 'Max 10MB per file (up to 20MB total)',
+    FILE_TOO_LARGE: 'File "{{name}}" exceeds the maximum 10MB limit.',
+    TOTAL_SIZE_EXCEEDED: 'Total attachment size exceeds the 20MB limit.',
+    REMOVE_ATTACHMENT: 'Remove attachment',
+    DROP_FILES_HERE: 'Drop files here or click to browse',
   },
   HTML_EDITOR: {
     BOLD: 'Bold',

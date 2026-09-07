@@ -132,6 +132,7 @@ export class CustomerController {
       recipientEmail: dto.recipientEmail,
       subject: dto.subject,
       body: dto.body,
+      attachments: dto.attachments,
     });
 
     if (result.isFailure) {

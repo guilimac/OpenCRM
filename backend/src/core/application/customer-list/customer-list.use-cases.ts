@@ -18,6 +18,7 @@ import { Interaction } from '../../domain/interaction/interaction.entity.js';
 import {
   EMAIL_PORT,
   type IEmailPort,
+  type EmailAttachment,
 } from '../common/ports/email.port.js';
 
 // ── Create Customer List Use Case ────────────────────────────
@@ -142,6 +143,7 @@ export interface SendMassEmailCommand {
   customerListId: string;
   subject: string;
   body: string;
+  attachments?: EmailAttachment[];
 }
 
 export interface SendMassEmailResult {
@@ -241,6 +243,7 @@ export class SendMassEmailUseCase {
         subject: interpolatedSubject,
         text: plainText,
         html: htmlBody,
+        attachments: command.attachments,
       });
 
       if (sendResult.isFailure) {
@@ -254,6 +257,10 @@ export class SendMassEmailUseCase {
         sentCount++;
         // Log individual EMAIL interaction
         const now = new Date();
+        const attachmentNote = command.attachments?.length
+          ? `\n\n[Anexos (${command.attachments.length}): ${command.attachments.map((a) => a.filename).join(', ')}]`
+          : '';
+
         const interaction = Interaction.create(
           {
             orgId: command.orgId,
@@ -262,7 +269,7 @@ export class SendMassEmailUseCase {
             contactId: targetContact.id,
             type: 'EMAIL',
             subject: interpolatedSubject,
-            description: interpolatedBody,
+            description: `${interpolatedBody}${attachmentNote}`,
             outcome: 'MASS_MAIL_SENT',
             completedAt: now,
             createdAt: now,
