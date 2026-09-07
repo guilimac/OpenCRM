@@ -10,11 +10,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { CustomerStore } from '../../state/customer.store';
 import { CustomerApiService } from '../../services/customer-api.service';
 import { CustomerSummary } from '../../models/customer.model';
 import { SendCustomerEmailDialogComponent } from '../send-customer-email-dialog/send-customer-email-dialog.component';
+import { CreateCustomerDialogComponent } from '../create-customer-dialog/create-customer-dialog.component';
 import { StatusBadgeComponent } from '../../../../shared/ui/status-badge/status-badge.component';
 import { BrlCurrencyPipe } from '../../../../shared/pipes/brl-currency.pipe';
 
@@ -44,7 +45,12 @@ import { BrlCurrencyPipe } from '../../../../shared/pipes/brl-currency.pipe';
           <p class="page-subtitle">Gerencie empresas, contatos e dados financeiros consolidados</p>
         </div>
         <div class="flex-spacer"></div>
-        <button mat-flat-button color="primary" class="gap-sm">
+        <button
+          mat-flat-button
+          color="primary"
+          class="gap-sm"
+          (click)="openCreateCustomerDialog()"
+        >
           <mat-icon>add</mat-icon>
           Novo Cliente
         </button>
@@ -278,6 +284,19 @@ export class CustomerListComponent implements OnInit {
 
   ngOnInit(): void {
     this.store.loadCustomers();
+  }
+
+  openCreateCustomerDialog(): void {
+    const ref = this.dialog.open(CreateCustomerDialogComponent, {
+      width: '600px',
+      disableClose: true,
+    });
+
+    ref.afterClosed().subscribe((created) => {
+      if (created) {
+        this.store.loadCustomers();
+      }
+    });
   }
 
   openSendEmailDialog(customer: CustomerSummary): void {
