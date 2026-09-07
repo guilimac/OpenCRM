@@ -13,6 +13,11 @@ import { OpportunityOrmEntity } from './infrastructure/adapters/secondary/persis
 import { InteractionOrmEntity } from './infrastructure/adapters/secondary/persistence/mysql/entities/interaction.orm-entity.js';
 import { CustomerListOrmEntity } from './infrastructure/adapters/secondary/persistence/mysql/entities/customer-list.orm-entity.js';
 import { CustomerListMemberOrmEntity } from './infrastructure/adapters/secondary/persistence/mysql/entities/customer-list-member.orm-entity.js';
+import { ProductOrmEntity } from './infrastructure/adapters/secondary/persistence/mysql/entities/product.orm-entity.js';
+import { BudgetOrmEntity } from './infrastructure/adapters/secondary/persistence/mysql/entities/budget.orm-entity.js';
+import { BudgetItemOrmEntity } from './infrastructure/adapters/secondary/persistence/mysql/entities/budget-item.orm-entity.js';
+import { ProductModule } from './infrastructure/modules/product.module.js';
+import { BudgetModule } from './infrastructure/modules/budget.module.js';
 
 @Module({
   imports: [
@@ -38,6 +43,9 @@ import { CustomerListMemberOrmEntity } from './infrastructure/adapters/secondary
           InteractionOrmEntity,
           CustomerListOrmEntity,
           CustomerListMemberOrmEntity,
+          ProductOrmEntity,
+          BudgetOrmEntity,
+          BudgetItemOrmEntity,
         ],
         synchronize: config.get<string>('DB_SYNCHRONIZE', 'true') === 'true',
         logging: config.get<string>('DB_LOGGING', 'false') === 'true',
@@ -50,6 +58,8 @@ import { CustomerListMemberOrmEntity } from './infrastructure/adapters/secondary
     AuthModule,
     CustomerModule,
     OpportunityModule,
+    ProductModule,
+    BudgetModule,
   ],
   controllers: [HealthController],
 })

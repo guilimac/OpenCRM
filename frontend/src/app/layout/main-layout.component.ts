@@ -89,6 +89,26 @@ import { ChangePasswordDialogComponent } from '../core/auth/features/change-pass
             <mat-icon matListItemIcon>campaign</mat-icon>
             <span matListItemTitle>{{ 'NAV.CUSTOMER_LISTS' | translate }}</span>
           </a>
+
+          <a
+            mat-list-item
+            routerLink="/budgets"
+            routerLinkActive="active-link"
+            (click)="isMobile() && drawer.close()"
+          >
+            <mat-icon matListItemIcon>request_quote</mat-icon>
+            <span matListItemTitle>{{ 'NAV.BUDGETS' | translate }}</span>
+          </a>
+
+          <a
+            mat-list-item
+            routerLink="/products"
+            routerLinkActive="active-link"
+            (click)="isMobile() && drawer.close()"
+          >
+            <mat-icon matListItemIcon>inventory_2</mat-icon>
+            <span matListItemTitle>{{ 'NAV.PRODUCTS' | translate }}</span>
+          </a>
         </mat-nav-list>
 
         <div class="sidenav-footer">

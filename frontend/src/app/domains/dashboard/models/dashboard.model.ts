@@ -2,7 +2,9 @@ export type DashboardEntityType =
   | 'CUSTOMER'
   | 'OPPORTUNITY'
   | 'CUSTOMER_LIST'
-  | 'INTERACTION';
+  | 'INTERACTION'
+  | 'BUDGET'
+  | 'PRODUCT';
 
 export type DashboardChartType = 'BAR' | 'DONUT' | 'LINE' | 'STAT' | 'TABLE';
 

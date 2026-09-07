@@ -5,6 +5,8 @@ import { DashboardEngineService, DEFAULT_PANELS } from './dashboard-engine.servi
 import { CustomerApiService } from '../../customer/services/customer-api.service';
 import { OpportunityApiService } from '../../opportunity/services/opportunity-api.service';
 import { InteractionApiService } from './interaction-api.service';
+import { ProductApiService } from '../../product/services/product-api.service';
+import { BudgetApiService } from '../../budget/services/budget-api.service';
 import { DashboardPanelConfig } from '../models/dashboard.model';
 
 describe('DashboardEngineService', () => {
@@ -12,6 +14,8 @@ describe('DashboardEngineService', () => {
   let mockCustomerApi: any;
   let mockOpportunityApi: any;
   let mockInteractionApi: any;
+  let mockProductApi: any;
+  let mockBudgetApi: any;
 
   beforeEach(() => {
     localStorage.clear();
@@ -91,12 +95,32 @@ describe('DashboardEngineService', () => {
       ),
     };
 
+    mockProductApi = {
+      list: vi.fn().mockReturnValue(
+        of([
+          { id: 'p-1', code: 'PRD-001', name: 'Product A', category: 'SOFTWARE', unitPrice: 1500, unit: 'UN', isActive: true },
+          { id: 'p-2', code: 'PRD-002', name: 'Product B', category: 'SERVICE', unitPrice: 500, unit: 'HR', isActive: true },
+        ]),
+      ),
+    };
+
+    mockBudgetApi = {
+      list: vi.fn().mockReturnValue(
+        of([
+          { id: 'b-1', budgetNumber: 'ORC-2026-0001', customerName: 'Tech Alpha', status: 'APPROVED', totalAmount: 3000, subtotal: 3000, discountAmount: 0 },
+          { id: 'b-2', budgetNumber: 'ORC-2026-0002', customerName: 'Finance Beta', status: 'DRAFT', totalAmount: 1000, subtotal: 1000, discountAmount: 0 },
+        ]),
+      ),
+    };
+
     TestBed.configureTestingModule({
       providers: [
         DashboardEngineService,
         { provide: CustomerApiService, useValue: mockCustomerApi },
         { provide: OpportunityApiService, useValue: mockOpportunityApi },
         { provide: InteractionApiService, useValue: mockInteractionApi },
+        { provide: ProductApiService, useValue: mockProductApi },
+        { provide: BudgetApiService, useValue: mockBudgetApi },
       ],
     });
 
@@ -214,5 +238,56 @@ describe('DashboardEngineService', () => {
     // Reset to defaults
     service.resetToDefaults();
     expect(service.panels().length).toBe(DEFAULT_PANELS.length);
+  });
+
+  it('should aggregate data for BUDGET entity with SUM of totalAmount', () => {
+    service.refreshData().subscribe();
+
+    const panel: DashboardPanelConfig = {
+      id: 'test-budget-bar',
+      title: 'Budgets by Status',
+      entity: 'BUDGET',
+      chartType: 'BAR',
+      metric: 'SUM',
+      metricField: 'totalAmount',
+      groupBy: 'status',
+      width: 'half',
+    };
+
+    const data = service.computeChartData(panel);
+    expect(data.chartType).toBe('BAR');
+    expect(data.items.length).toBe(2);
+
+    const approvedItem = data.items.find((i) => i.label === 'APPROVED');
+    const draftItem = data.items.find((i) => i.label === 'DRAFT');
+
+    expect(approvedItem?.value).toBe(3000);
+    expect(draftItem?.value).toBe(1000);
+    expect(data.totalValue).toBe(4000);
+  });
+
+  it('should aggregate data for PRODUCT entity by category', () => {
+    service.refreshData().subscribe();
+
+    const panel: DashboardPanelConfig = {
+      id: 'test-product-donut',
+      title: 'Products by Category',
+      entity: 'PRODUCT',
+      chartType: 'DONUT',
+      metric: 'COUNT',
+      groupBy: 'category',
+      width: 'half',
+    };
+
+    const data = service.computeChartData(panel);
+    expect(data.chartType).toBe('DONUT');
+    expect(data.items.length).toBe(2);
+
+    const softItem = data.items.find((i) => i.label === 'SOFTWARE');
+    const servItem = data.items.find((i) => i.label === 'SERVICE');
+
+    expect(softItem?.value).toBe(1);
+    expect(servItem?.value).toBe(1);
+    expect(data.totalValue).toBe(2);
   });
 });

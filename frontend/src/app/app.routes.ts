@@ -70,6 +70,20 @@ export const routes: Routes = [
             (m) => m.CustomerListsComponent,
           ),
       },
+      {
+        path: 'products',
+        loadComponent: () =>
+          import('./domains/product/features/product-list/product-list.component').then(
+            (m) => m.ProductListComponent,
+          ),
+      },
+      {
+        path: 'budgets',
+        loadComponent: () =>
+          import('./domains/budget/features/budget-list/budget-list.component').then(
+            (m) => m.BudgetListComponent,
+          ),
+      },
     ],
   },
   {

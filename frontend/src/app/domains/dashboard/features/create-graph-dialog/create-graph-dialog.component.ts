@@ -675,6 +675,10 @@ export class CreateGraphDialogComponent {
         return 'Listas de Segmentação';
       case 'INTERACTION':
         return 'Atividades & Interações';
+      case 'BUDGET':
+        return 'Orçamentos & Propostas';
+      case 'PRODUCT':
+        return 'Produtos & Serviços';
     }
   }
 
@@ -682,11 +686,13 @@ export class CreateGraphDialogComponent {
     const map: Record<string, string> = {
       stage: 'Estágio do Funil',
       currency: 'Moeda da Oportunidade',
-      status: 'Status do Cliente',
+      status: 'Status',
       industry: 'Setor / Indústria',
       name: 'Nome da Lista',
       type: 'Tipo de Atividade',
       outcome: 'Desfecho / Resultado',
+      category: 'Categoria do Produto',
+      unit: 'Unidade de Medida',
       createdMonth: 'Mês de Criação',
     };
     return map[dim] || dim;
@@ -700,6 +706,9 @@ export class CreateGraphDialogComponent {
       annualRevenue: 'Faturamento Anual (R$)',
       employeeCount: 'Número de Funcionários',
       memberCount: 'Quantidade de Membros na Lista',
+      totalAmount: 'Valor Total do Orçamento (R$)',
+      subtotal: 'Subtotal dos Itens (R$)',
+      unitPrice: 'Preço Unitário (R$)',
     };
     return map[fld] || fld;
   }
@@ -711,7 +720,18 @@ export class CreateGraphDialogComponent {
     const metric = this.form.value.metric;
 
     let title = '';
-    const entName = entity === 'CUSTOMER' ? 'Clientes' : entity === 'OPPORTUNITY' ? 'Oportunidades' : entity === 'CUSTOMER_LIST' ? 'Listas' : 'Interações';
+    const entName =
+      entity === 'CUSTOMER'
+        ? 'Clientes'
+        : entity === 'OPPORTUNITY'
+        ? 'Oportunidades'
+        : entity === 'CUSTOMER_LIST'
+        ? 'Listas'
+        : entity === 'BUDGET'
+        ? 'Orçamentos'
+        : entity === 'PRODUCT'
+        ? 'Produtos'
+        : 'Interações';
     const dimName = this.getDimensionDisplayName(groupBy);
 
     if (metric === 'SUM') {

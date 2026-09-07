@@ -4,9 +4,13 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { CustomerApiService } from '../../customer/services/customer-api.service';
 import { OpportunityApiService } from '../../opportunity/services/opportunity-api.service';
 import { InteractionApiService } from './interaction-api.service';
+import { ProductApiService } from '../../product/services/product-api.service';
+import { BudgetApiService } from '../../budget/services/budget-api.service';
 import { CustomerSummary, CustomerListItem } from '../../customer/models/customer.model';
 import { OpportunityItem } from '../../opportunity/models/opportunity.model';
 import { InteractionItem } from '../models/interaction.model';
+import { ProductItem } from '../../product/models/product.model';
+import { BudgetDetail } from '../../budget/models/budget.model';
 import {
   DashboardPanelConfig,
   ChartWidgetData,
@@ -133,6 +137,8 @@ export class DashboardEngineService {
   private readonly customerApi = inject(CustomerApiService);
   private readonly opportunityApi = inject(OpportunityApiService);
   private readonly interactionApi = inject(InteractionApiService);
+  private readonly productApi = inject(ProductApiService);
+  private readonly budgetApi = inject(BudgetApiService);
 
   public readonly loading = signal<boolean>(false);
   public readonly panels = signal<DashboardPanelConfig[]>([]);
@@ -151,6 +157,8 @@ export class DashboardEngineService {
   private rawOpportunities: OpportunityItem[] = [];
   private rawCustomerLists: CustomerListItem[] = [];
   private rawInteractions: InteractionItem[] = [];
+  private rawProducts: ProductItem[] = [];
+  private rawBudgets: BudgetDetail[] = [];
 
   constructor() {
     this.loadPanels();
@@ -228,12 +236,20 @@ export class DashboardEngineService {
       interactions: this.interactionApi.list().pipe(
         catchError(() => of([] as InteractionItem[])),
       ),
+      products: this.productApi.list().pipe(
+        catchError(() => of([] as ProductItem[])),
+      ),
+      budgets: this.budgetApi.list().pipe(
+        catchError(() => of([] as BudgetDetail[])),
+      ),
     }).pipe(
-      tap(({ customers, opportunities, customerLists, interactions }) => {
+      tap(({ customers, opportunities, customerLists, interactions, products, budgets }) => {
         this.rawCustomers = customers;
         this.rawOpportunities = opportunities;
         this.rawCustomerLists = customerLists;
         this.rawInteractions = interactions;
+        this.rawProducts = products;
+        this.rawBudgets = budgets;
 
         this.updateKpis();
         this.loading.set(false);
@@ -331,6 +347,34 @@ export class DashboardEngineService {
         ],
         metricFieldOptions: [
           { value: 'count', labelKey: 'dashboard.metrics.count', allowedMetrics: ['COUNT'] },
+        ],
+      },
+      {
+        entity: 'BUDGET',
+        labelKey: 'dashboard.entities.budget',
+        icon: 'request_quote',
+        groupByOptions: [
+          { value: 'status', labelKey: 'dashboard.dimensions.status' },
+          { value: 'createdMonth', labelKey: 'dashboard.dimensions.createdMonth' },
+        ],
+        metricFieldOptions: [
+          { value: 'count', labelKey: 'dashboard.metrics.count', allowedMetrics: ['COUNT'] },
+          { value: 'totalAmount', labelKey: 'dashboard.metrics.totalAmount', allowedMetrics: ['SUM', 'AVG'] },
+          { value: 'subtotal', labelKey: 'dashboard.metrics.subtotal', allowedMetrics: ['SUM', 'AVG'] },
+        ],
+      },
+      {
+        entity: 'PRODUCT',
+        labelKey: 'dashboard.entities.product',
+        icon: 'inventory_2',
+        groupByOptions: [
+          { value: 'category', labelKey: 'dashboard.dimensions.category' },
+          { value: 'unit', labelKey: 'dashboard.dimensions.unit' },
+          { value: 'createdMonth', labelKey: 'dashboard.dimensions.createdMonth' },
+        ],
+        metricFieldOptions: [
+          { value: 'count', labelKey: 'dashboard.metrics.count', allowedMetrics: ['COUNT'] },
+          { value: 'unitPrice', labelKey: 'dashboard.metrics.unitPrice', allowedMetrics: ['SUM', 'AVG'] },
         ],
       },
     ];
@@ -440,6 +484,10 @@ export class DashboardEngineService {
         return this.rawCustomerLists;
       case 'INTERACTION':
         return this.rawInteractions;
+      case 'BUDGET':
+        return this.rawBudgets;
+      case 'PRODUCT':
+        return this.rawProducts;
       default:
         return [];
     }
@@ -476,7 +524,10 @@ export class DashboardEngineService {
       metricField === 'amountInBrl' ||
       metricField === 'amount' ||
       metricField === 'weightedValueInBrl' ||
-      metricField === 'annualRevenue';
+      metricField === 'annualRevenue' ||
+      metricField === 'totalAmount' ||
+      metricField === 'subtotal' ||
+      metricField === 'unitPrice';
 
     if (isCurrency) {
       return new Intl.NumberFormat('pt-BR', {
@@ -495,11 +546,15 @@ export class DashboardEngineService {
     opportunities?: OpportunityItem[];
     customerLists?: CustomerListItem[];
     interactions?: InteractionItem[];
+    products?: ProductItem[];
+    budgets?: BudgetDetail[];
   }) {
     if (data.customers) this.rawCustomers = data.customers;
     if (data.opportunities) this.rawOpportunities = data.opportunities;
     if (data.customerLists) this.rawCustomerLists = data.customerLists;
     if (data.interactions) this.rawInteractions = data.interactions;
+    if (data.products) this.rawProducts = data.products;
+    if (data.budgets) this.rawBudgets = data.budgets;
     this.updateKpis();
   }
 }
