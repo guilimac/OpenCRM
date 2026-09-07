@@ -106,3 +106,26 @@ export class CustomerQueryDto {
   @IsString()
   status?: string;
 }
+
+export class SendCustomerEmailRequestDto {
+  @ApiPropertyOptional({ example: 'cont-uuid-123' })
+  @IsOptional()
+  @IsString()
+  contactId?: string;
+
+  @ApiPropertyOptional({ example: 'direct@client.com' })
+  @IsOptional()
+  @IsEmail()
+  recipientEmail?: string;
+
+  @ApiProperty({ example: 'Atualização da Proposta Comercial' })
+  @IsString()
+  @IsNotEmpty()
+  subject!: string;
+
+  @ApiProperty({ example: 'Olá, segue a atualização da proposta combinada em nossa reunião.' })
+  @IsString()
+  @IsNotEmpty()
+  body!: string;
+}
+

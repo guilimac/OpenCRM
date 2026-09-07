@@ -14,7 +14,15 @@ import { TypeOrmInteractionRepository } from '../adapters/secondary/persistence/
 import { CreateCustomerUseCase } from '../../core/application/customer/create-customer.use-case.js';
 import { GetCustomerByIdUseCase } from '../../core/application/customer/get-customer-by-id.use-case.js';
 import { ListCustomersUseCase } from '../../core/application/customer/list-customers.use-case.js';
+import { SendEmailToCustomerUseCase } from '../../core/application/customer/send-email-to-customer.use-case.js';
+import {
+  CreateCustomerListUseCase,
+  ListCustomerListsUseCase,
+  GetCustomerListByIdUseCase,
+  SendMassEmailUseCase,
+} from '../../core/application/customer-list/customer-list.use-cases.js';
 import { CustomerController } from '../adapters/primary/rest/customer/customer.controller.js';
+import { CustomerListController } from '../adapters/primary/rest/customer-list/customer-list.controller.js';
 
 @Module({
   imports: [
@@ -26,7 +34,7 @@ import { CustomerController } from '../adapters/primary/rest/customer/customer.c
       InteractionOrmEntity,
     ]),
   ],
-  controllers: [CustomerController],
+  controllers: [CustomerController, CustomerListController],
   providers: [
     {
       provide: CUSTOMER_REPOSITORY_PORT,
@@ -43,6 +51,11 @@ import { CustomerController } from '../adapters/primary/rest/customer/customer.c
     CreateCustomerUseCase,
     GetCustomerByIdUseCase,
     ListCustomersUseCase,
+    SendEmailToCustomerUseCase,
+    CreateCustomerListUseCase,
+    ListCustomerListsUseCase,
+    GetCustomerListByIdUseCase,
+    SendMassEmailUseCase,
   ],
   exports: [
     CUSTOMER_REPOSITORY_PORT,

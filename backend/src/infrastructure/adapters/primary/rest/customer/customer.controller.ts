@@ -13,10 +13,15 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { CreateCustomerUseCase } from '../../../../../core/application/customer/create-customer.use-case.js';
 import { GetCustomerByIdUseCase } from '../../../../../core/application/customer/get-customer-by-id.use-case.js';
 import { ListCustomersUseCase } from '../../../../../core/application/customer/list-customers.use-case.js';
+import { SendEmailToCustomerUseCase } from '../../../../../core/application/customer/send-email-to-customer.use-case.js';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard.js';
 import { CurrentUser } from '../decorators/current-user.decorator.js';
 import { type AccessTokenPayload } from '../../../../../core/application/common/ports/token.port.js';
-import { CreateCustomerRequestDto, CustomerQueryDto } from './dto/customer.dto.js';
+import {
+  CreateCustomerRequestDto,
+  CustomerQueryDto,
+  SendCustomerEmailRequestDto,
+} from './dto/customer.dto.js';
 
 @ApiTags('Customers')
 @ApiBearerAuth()
@@ -27,6 +32,7 @@ export class CustomerController {
     private readonly createCustomerUseCase: CreateCustomerUseCase,
     private readonly getCustomerByIdUseCase: GetCustomerByIdUseCase,
     private readonly listCustomersUseCase: ListCustomersUseCase,
+    private readonly sendEmailToCustomerUseCase: SendEmailToCustomerUseCase,
   ) {}
 
   @Post()
@@ -109,4 +115,34 @@ export class CustomerController {
     }
     return result.getValue();
   }
+
+  @Post(':id/send-email')
+  @ApiOperation({ summary: 'Send direct email to customer contact and log interaction' })
+  @ApiResponse({ status: 200, description: 'Email sent successfully' })
+  async sendEmail(
+    @CurrentUser() user: AccessTokenPayload,
+    @Param('id') id: string,
+    @Body() dto: SendCustomerEmailRequestDto,
+  ) {
+    const result = await this.sendEmailToCustomerUseCase.execute({
+      orgId: user.orgId,
+      userId: user.sub,
+      customerId: id,
+      contactId: dto.contactId,
+      recipientEmail: dto.recipientEmail,
+      subject: dto.subject,
+      body: dto.body,
+    });
+
+    if (result.isFailure) {
+      throw new BadRequestException(result.error);
+    }
+
+    return {
+      success: true,
+      message: 'Email enviado com sucesso',
+      data: result.getValue(),
+    };
+  }
 }
+
