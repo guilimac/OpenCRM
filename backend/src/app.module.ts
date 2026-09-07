@@ -11,6 +11,8 @@ import { CustomerOrmEntity } from './infrastructure/adapters/secondary/persisten
 import { ContactOrmEntity } from './infrastructure/adapters/secondary/persistence/mysql/entities/contact.orm-entity.js';
 import { OpportunityOrmEntity } from './infrastructure/adapters/secondary/persistence/mysql/entities/opportunity.orm-entity.js';
 import { InteractionOrmEntity } from './infrastructure/adapters/secondary/persistence/mysql/entities/interaction.orm-entity.js';
+import { CustomerListOrmEntity } from './infrastructure/adapters/secondary/persistence/mysql/entities/customer-list.orm-entity.js';
+import { CustomerListMemberOrmEntity } from './infrastructure/adapters/secondary/persistence/mysql/entities/customer-list-member.orm-entity.js';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { InteractionOrmEntity } from './infrastructure/adapters/secondary/persis
           ContactOrmEntity,
           OpportunityOrmEntity,
           InteractionOrmEntity,
+          CustomerListOrmEntity,
+          CustomerListMemberOrmEntity,
         ],
         synchronize: config.get<string>('DB_SYNCHRONIZE', 'true') === 'true',
         logging: config.get<string>('DB_LOGGING', 'false') === 'true',

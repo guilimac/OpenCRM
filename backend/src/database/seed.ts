@@ -28,6 +28,8 @@ import { CustomerOrmEntity } from '../infrastructure/adapters/secondary/persiste
 import { ContactOrmEntity } from '../infrastructure/adapters/secondary/persistence/mysql/entities/contact.orm-entity.js';
 import { OpportunityOrmEntity } from '../infrastructure/adapters/secondary/persistence/mysql/entities/opportunity.orm-entity.js';
 import { InteractionOrmEntity } from '../infrastructure/adapters/secondary/persistence/mysql/entities/interaction.orm-entity.js';
+import { CustomerListOrmEntity } from '../infrastructure/adapters/secondary/persistence/mysql/entities/customer-list.orm-entity.js';
+import { CustomerListMemberOrmEntity } from '../infrastructure/adapters/secondary/persistence/mysql/entities/customer-list-member.orm-entity.js';
 
 // Load .env from backend directory or project root
 config({ path: ['.env', '../.env'] });
@@ -73,6 +75,9 @@ const INT_3 = 'ffffffff-0003-0000-0000-000000000001';
 const INT_4 = 'ffffffff-0004-0000-0000-000000000001';
 const INT_5 = 'ffffffff-0005-0000-0000-000000000001';
 
+// Customer Lists
+const LIST_1 = 'a1111111-1111-0000-0000-000000000001';
+
 // ─────────────────────────────────────────────────────────────
 // Database Connection
 // ─────────────────────────────────────────────────────────────
@@ -92,6 +97,8 @@ async function getDataSource(): Promise<DataSource> {
       ContactOrmEntity,
       OpportunityOrmEntity,
       InteractionOrmEntity,
+      CustomerListOrmEntity,
+      CustomerListMemberOrmEntity,
     ],
   });
   await ds.initialize();
@@ -551,6 +558,36 @@ async function seed(): Promise<void> {
     `);
     console.log(`   ✔ [${inter.type}] ${inter.subject}`);
   }
+
+  // ── Customer Lists & Mass Mailing ──────────────────────────
+  console.log('\n✉ Seeding customer lists...');
+
+  await q(`
+    INSERT INTO customer_lists
+      (id, org_id, name, description, created_at, updated_at)
+    VALUES
+      (${escStr(LIST_1)}, ${escStr(ORG_ID)},
+       'Clientes VIP e Contas Estratégicas',
+       'Lista prioritária para comunicação institucional, pesquisas de satisfação e novidades',
+       ${escStr(now)}, ${escStr(now)})
+    ON DUPLICATE KEY UPDATE
+      name = VALUES(name),
+      description = VALUES(description),
+      updated_at = VALUES(updated_at)
+  `);
+
+  const listMembers = [CUST_1, CUST_2, CUST_3];
+  for (const custId of listMembers) {
+    await q(`
+      INSERT INTO customer_list_members
+        (list_id, customer_id, created_at)
+      VALUES
+        (${escStr(LIST_1)}, ${escStr(custId)}, ${escStr(now)})
+      ON DUPLICATE KEY UPDATE
+        created_at = VALUES(created_at)
+    `);
+  }
+  console.log(`   ✔ Clientes VIP e Contas Estratégicas (${listMembers.length} clientes vinculados)`);
 
   await ds.destroy();
 
