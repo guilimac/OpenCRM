@@ -231,7 +231,7 @@ export class LoginComponent {
   readonly errorMessage = signal<string | null>(null);
 
   readonly form = this.fb.group({
-    email: ['demo@opencrm.com', [Validators.required, Validators.email]],
+    email: ['admin@opencrm.com', [Validators.required, Validators.email]],
     password: ['Demo@123456', [Validators.required, Validators.minLength(6)]],
   });
 

@@ -86,6 +86,9 @@ export class JwtTokenAdapter implements ITokenPort {
       this.refreshExpiresInSeconds,
     );
 
+    // Clear any previous session revocation for this user so a newly authenticated login session is active
+    await this.cachePort.del(`auth:revocation:user:${payload.sub}`);
+
     return {
       accessToken,
       refreshToken,
@@ -94,21 +97,29 @@ export class JwtTokenAdapter implements ITokenPort {
   }
 
   async verifyAccessToken(token: string): Promise<AccessTokenPayload> {
+    let decoded: AccessTokenPayload;
     try {
-      const decoded = await this.jwtService.verifyAsync<AccessTokenPayload>(token, {
+      decoded = await this.jwtService.verifyAsync<AccessTokenPayload>(token, {
         secret: this.jwtSecret,
       });
+    } catch {
+      throw new UnauthorizedException('Invalid or expired access token');
+    }
 
+    try {
       // Check if user session was invalidated
       const isRevoked = await this.cachePort.isRevoked(decoded.sub);
       if (isRevoked) {
         throw new UnauthorizedException('Session has been revoked');
       }
-
-      return decoded;
-    } catch {
-      throw new UnauthorizedException('Invalid or expired access token');
+    } catch (err) {
+      if (err instanceof UnauthorizedException) {
+        throw err;
+      }
+      // If cache service is temporarily down, do not reject validly signed tokens
     }
+
+    return decoded;
   }
 
   async rotateRefreshToken(refreshToken: string): Promise<TokenPair> {
@@ -125,6 +136,12 @@ export class JwtTokenAdapter implements ITokenPort {
     const existing = await this.cachePort.get<RefreshTokenRecord>(cacheKey);
 
     if (!existing) {
+      // Check if this token was rotated within a recent 30-second grace window (absorbs concurrent in-flight requests)
+      const recentRotation = await this.cachePort.get<TokenPair>(`auth:rotated:${decoded.tokenId}`);
+      if (recentRotation) {
+        return recentRotation;
+      }
+
       // Possible Token Reuse / Theft! Revoke all tokens for this family!
       await this.cachePort.delPattern(`auth:refresh:*`);
       await this.cachePort.revokeUser(decoded.sub, this.accessExpiresInSeconds);
@@ -176,11 +193,16 @@ export class JwtTokenAdapter implements ITokenPort {
       this.refreshExpiresInSeconds,
     );
 
-    return {
+    const newPair: TokenPair = {
       accessToken: nextAccessToken,
       refreshToken: nextRefreshToken,
       expiresIn: this.accessExpiresInSeconds,
     };
+
+    // Keep grace record for 30 seconds to support network retries & concurrent tabs
+    await this.cachePort.set(`auth:rotated:${decoded.tokenId}`, newPair, 30);
+
+    return newPair;
   }
 
   async revokeTokenFamily(refreshToken: string): Promise<void> {
@@ -190,7 +212,7 @@ export class JwtTokenAdapter implements ITokenPort {
         { secret: this.jwtRefreshSecret },
       );
       await this.cachePort.del(`auth:refresh:${decoded.tokenId}`);
-      await this.cachePort.revokeUser(decoded.sub, this.accessExpiresInSeconds);
+      await this.cachePort.del(`auth:rotated:${decoded.tokenId}`);
     } catch {
       // Ignore token verification errors during revocation
     }
