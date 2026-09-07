@@ -1,0 +1,90 @@
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { Observable, tap, catchError, throwError } from 'rxjs';
+import { AuthResponse, AuthTokens, LoginPayload, UserProfile } from './auth.models';
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+
+  private readonly _currentUser = signal<UserProfile | null>(this.getStoredUser());
+  private readonly _accessToken = signal<string | null>(localStorage.getItem('access_token'));
+  private readonly _refreshToken = signal<string | null>(localStorage.getItem('refresh_token'));
+
+  public readonly currentUser = this._currentUser.asReadonly();
+  public readonly isAuthenticated = computed(() => !!this._accessToken());
+  public readonly userRole = computed(() => this._currentUser()?.role ?? null);
+
+  login(payload: LoginPayload): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>('/api/v1/auth/login', payload).pipe(
+      tap((res) => this.setSession(res)),
+      catchError((err) => throwError(() => err)),
+    );
+  }
+
+  refreshToken(): Observable<AuthTokens> {
+    const refreshToken = this._refreshToken();
+    if (!refreshToken) {
+      this.logout();
+      return throwError(() => new Error('No refresh token available'));
+    }
+
+    return this.http
+      .post<AuthTokens>('/api/v1/auth/refresh', { refreshToken })
+      .pipe(
+        tap((tokens) => {
+          this._accessToken.set(tokens.accessToken);
+          this._refreshToken.set(tokens.refreshToken);
+          localStorage.setItem('access_token', tokens.accessToken);
+          localStorage.setItem('refresh_token', tokens.refreshToken);
+        }),
+        catchError((err) => {
+          this.logout();
+          return throwError(() => err);
+        }),
+      );
+  }
+
+  logout(): void {
+    const refreshToken = this._refreshToken();
+    if (refreshToken) {
+      this.http.post('/api/v1/auth/logout', { refreshToken }).subscribe({
+        error: () => {},
+      });
+    }
+
+    this._currentUser.set(null);
+    this._accessToken.set(null);
+    this._refreshToken.set(null);
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user_profile');
+
+    this.router.navigate(['/login']);
+  }
+
+  getAccessToken(): string | null {
+    return this._accessToken();
+  }
+
+  private setSession(auth: AuthResponse): void {
+    this._currentUser.set(auth.user);
+    this._accessToken.set(auth.tokens.accessToken);
+    this._refreshToken.set(auth.tokens.refreshToken);
+
+    localStorage.setItem('access_token', auth.tokens.accessToken);
+    localStorage.setItem('refresh_token', auth.tokens.refreshToken);
+    localStorage.setItem('user_profile', JSON.stringify(auth.user));
+  }
+
+  private getStoredUser(): UserProfile | null {
+    try {
+      const stored = localStorage.getItem('user_profile');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  }
+}

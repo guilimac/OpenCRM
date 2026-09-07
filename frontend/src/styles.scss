@@ -1,0 +1,93 @@
+@use 'sass:string';
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+// Define palettes for Light and Dark modes
+$primary-palette: mat.$azure-palette;
+$tertiary-palette: mat.$blue-palette;
+
+$crm-light-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: $primary-palette,
+    tertiary: $tertiary-palette,
+  ),
+  typography: (
+    plain-family: string.unquote('Roboto, sans-serif'),
+    brand-family: string.unquote('Roboto, sans-serif'),
+    bold-weight: 700,
+    medium-weight: 500,
+    regular-weight: 400,
+  ),
+  density: (
+    scale: 0,
+  ),
+));
+
+$crm-dark-theme: mat.define-theme((
+  color: (
+    theme-type: dark,
+    primary: $primary-palette,
+    tertiary: $tertiary-palette,
+  ),
+));
+
+html {
+  @include mat.all-component-themes($crm-light-theme);
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  height: 100%;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body.dark-theme {
+  @include mat.all-component-colors($crm-dark-theme);
+  background-color: #0f172a;
+  color: #f1f5f9;
+}
+
+// WCAG 2.1 AA Accessibility Focus Ring
+:focus-visible {
+  outline: 2px solid #2563eb !important;
+  outline-offset: 2px !important;
+}
+
+// Helper layout utility classes
+.full-width {
+  width: 100%;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.flex-spacer {
+  flex: 1 1 auto;
+}
+
+.gap-sm {
+  gap: 0.5rem;
+}
+
+.gap-md {
+  gap: 1rem;
+}
+
+.gap-lg {
+  gap: 1.5rem;
+}
+
+.card-elevation {
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  border-radius: 0.5rem;
+}
