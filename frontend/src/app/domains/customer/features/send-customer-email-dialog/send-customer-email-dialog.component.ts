@@ -137,8 +137,9 @@ export interface SendCustomerEmailDialogData {
   `,
   styles: [`
     .dialog-container {
-      min-width: 580px;
-      max-width: 720px;
+      width: min(680px, calc(95vw - 3rem));
+      box-sizing: border-box;
+      padding: 0.5rem;
     }
     .dialog-header {
       align-items: center;

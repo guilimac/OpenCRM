@@ -77,7 +77,7 @@ describe('CustomerListComponent', () => {
 
     expect(dialogMock.open).toHaveBeenCalledWith(
       expect.anything(),
-      expect.objectContaining({ width: '600px', disableClose: true }),
+      expect.objectContaining({ width: 'fit-content', maxWidth: '95vw', disableClose: true }),
     );
     expect(customerStoreMock.loadCustomers).toHaveBeenCalledTimes(2); // init + after dialog closed
   });
@@ -89,7 +89,8 @@ describe('CustomerListComponent', () => {
     expect(dialogMock.open).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
-        width: '520px',
+        width: 'fit-content',
+        maxWidth: '95vw',
         data: expect.objectContaining({
           customerId: 'cust-1',
           companyName: 'Banco Dinâmico',

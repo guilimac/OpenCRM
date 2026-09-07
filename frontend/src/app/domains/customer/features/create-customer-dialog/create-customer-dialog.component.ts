@@ -199,8 +199,9 @@ import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
   `,
   styles: [`
     .dialog-container {
-      min-width: 500px;
-      max-width: 650px;
+      width: min(640px, calc(95vw - 3rem));
+      box-sizing: border-box;
+      padding: 0.5rem;
     }
     .dialog-header {
       align-items: center;

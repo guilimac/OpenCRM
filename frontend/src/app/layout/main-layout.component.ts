@@ -317,7 +317,8 @@ export class MainLayoutComponent {
 
   openChangePasswordDialog(): void {
     this.dialog.open(ChangePasswordDialogComponent, {
-      width: '460px',
+      width: 'fit-content',
+      maxWidth: '95vw',
       disableClose: true,
     });
   }

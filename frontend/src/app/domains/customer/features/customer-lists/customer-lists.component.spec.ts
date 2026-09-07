@@ -58,7 +58,7 @@ describe('CustomerListsComponent', () => {
     component.openCreateListDialog();
     expect(dialogMock.open).toHaveBeenCalledWith(
       expect.anything(),
-      expect.objectContaining({ width: '560px' }),
+      expect.objectContaining({ width: 'fit-content', maxWidth: '95vw' }),
     );
   });
 

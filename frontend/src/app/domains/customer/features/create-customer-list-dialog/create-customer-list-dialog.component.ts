@@ -127,8 +127,9 @@ import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
   `,
   styles: [`
     .dialog-container {
-      min-width: 450px;
-      max-width: 560px;
+      width: min(540px, calc(95vw - 3rem));
+      box-sizing: border-box;
+      padding: 0.5rem;
     }
     .dialog-header {
       align-items: center;

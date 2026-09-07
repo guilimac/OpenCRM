@@ -290,7 +290,8 @@ export class CustomerListComponent implements OnInit {
 
   openCreateCustomerDialog(): void {
     const ref = this.dialog.open(CreateCustomerDialogComponent, {
-      width: '600px',
+      width: 'fit-content',
+      maxWidth: '95vw',
       disableClose: true,
     });
 
@@ -305,7 +306,8 @@ export class CustomerListComponent implements OnInit {
     this.customerApi.getById(customer.id).subscribe({
       next: (detail) => {
         this.dialog.open(SendCustomerEmailDialogComponent, {
-          width: '520px',
+          width: 'fit-content',
+          maxWidth: '95vw',
           data: {
             customerId: customer.id,
             companyName: customer.companyName,
@@ -315,7 +317,8 @@ export class CustomerListComponent implements OnInit {
       },
       error: () => {
         this.dialog.open(SendCustomerEmailDialogComponent, {
-          width: '520px',
+          width: 'fit-content',
+          maxWidth: '95vw',
           data: {
             customerId: customer.id,
             companyName: customer.companyName,

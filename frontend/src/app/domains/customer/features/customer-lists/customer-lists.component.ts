@@ -290,7 +290,8 @@ export class CustomerListsComponent implements OnInit {
 
   openCreateListDialog(): void {
     const ref = this.dialog.open(CreateCustomerListDialogComponent, {
-      width: '560px',
+      width: 'fit-content',
+      maxWidth: '95vw',
       disableClose: true,
     });
 
@@ -303,7 +304,8 @@ export class CustomerListsComponent implements OnInit {
 
   openSendMassEmailDialog(list: CustomerListItem): void {
     this.dialog.open(SendMassEmailDialogComponent, {
-      width: '600px',
+      width: 'fit-content',
+      maxWidth: '95vw',
       data: { list },
     });
   }

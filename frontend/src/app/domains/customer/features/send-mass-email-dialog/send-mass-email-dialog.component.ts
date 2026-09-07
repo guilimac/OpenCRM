@@ -144,8 +144,9 @@ export interface SendMassEmailDialogData {
   `,
   styles: [`
     .dialog-container {
-      min-width: 600px;
-      max-width: 760px;
+      width: min(720px, calc(95vw - 3rem));
+      box-sizing: border-box;
+      padding: 0.5rem;
     }
     .dialog-header {
       align-items: center;

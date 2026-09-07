@@ -166,6 +166,8 @@ export const differentPasswordValidator: ValidatorFn = (control: AbstractControl
   `,
   styles: [`
     .dialog-container {
+      width: min(440px, calc(95vw - 3rem));
+      box-sizing: border-box;
       padding: 0.5rem;
     }
     .dialog-header {
