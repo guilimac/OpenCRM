@@ -91,6 +91,13 @@ export const routes: Routes = [
             (m) => m.ComboboxSettingsComponent,
           ),
       },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./domains/profile/features/profile-view/profile-view.component').then(
+            (m) => m.ProfileViewComponent,
+          ),
+      },
     ],
   },
   {

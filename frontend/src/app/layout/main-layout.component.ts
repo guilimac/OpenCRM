@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
@@ -184,14 +184,31 @@ import { ChangePasswordDialogComponent } from '../core/auth/features/change-pass
           </button>
 
           <!-- User Menu -->
-          <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="Menu do usuário">
-            <mat-icon>account_circle</mat-icon>
+          <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-avatar-btn" aria-label="Menu do usuário">
+            @if (authService.currentUser()?.avatarUrl) {
+              <img [src]="authService.currentUser()!.avatarUrl" alt="Avatar" class="topbar-avatar-img" />
+            } @else {
+              <div class="topbar-avatar-fallback">{{ userInitials() }}</div>
+            }
           </button>
           <mat-menu #userMenu="matMenu">
             <div class="user-menu-header">
-              <p class="user-name">{{ authService.currentUser()?.firstName }} {{ authService.currentUser()?.lastName }}</p>
-              <p class="user-role">{{ authService.currentUser()?.role }}</p>
+              @if (authService.currentUser()?.avatarUrl) {
+                <img [src]="authService.currentUser()!.avatarUrl" alt="Avatar" class="menu-avatar-img" />
+              } @else {
+                <div class="menu-avatar-fallback">{{ userInitials() }}</div>
+              }
+              <div class="user-menu-info">
+                <p class="user-name">{{ authService.currentUser()?.firstName }} {{ authService.currentUser()?.lastName }}</p>
+                <p class="user-email">{{ authService.currentUser()?.email }}</p>
+                <span class="user-role-badge">{{ authService.currentUser()?.role }}</span>
+              </div>
             </div>
+            <mat-divider></mat-divider>
+            <a mat-menu-item routerLink="/profile">
+              <mat-icon>manage_accounts</mat-icon>
+              <span>{{ 'NAV.PROFILE' | translate }}</span>
+            </a>
             <button mat-menu-item (click)="openChangePasswordDialog()">
               <mat-icon>lock_reset</mat-icon>
               <span>{{ 'NAV.CHANGE_PASSWORD' | translate }}</span>
@@ -288,19 +305,95 @@ import { ChangePasswordDialogComponent } from '../core/auth/features/change-pass
       font-size: 1.1rem;
       font-weight: 600;
     }
+    .user-avatar-btn {
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .topbar-avatar-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid rgba(0, 0, 0, 0.1);
+    }
+    .topbar-avatar-fallback {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #3b82f6;
+      color: #ffffff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     .user-menu-header {
-      padding: 0.5rem 1rem;
-      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0.85rem 1rem;
+      min-width: 220px;
+    }
+    .menu-avatar-img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .menu-avatar-fallback {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #3b82f6;
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .user-menu-info {
+      overflow: hidden;
     }
     .user-name {
       font-weight: 600;
       margin: 0;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .user-role {
+    .user-email {
       color: #64748b;
-      font-size: 0.75rem;
-      margin: 0.1rem 0 0;
+      font-size: 0.78rem;
+      margin: 0.1rem 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .user-role-badge {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: #e0f2fe;
+      color: #0369a1;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    :host-context(.dark-theme) .user-email {
+      color: #94a3b8;
+    }
+    :host-context(.dark-theme) .user-role-badge {
+      background: #1e3a8a;
+      color: #93c5fd;
     }
     .content-outlet {
       min-height: calc(100vh - 64px);
@@ -353,6 +446,14 @@ export class MainLayoutComponent {
   readonly i18nService = inject(I18nService);
 
   readonly isMobile = signal<boolean>(false);
+
+  readonly userInitials = computed(() => {
+    const user = this.authService.currentUser();
+    if (!user) return 'U';
+    const first = user.firstName?.[0] ?? '';
+    const last = user.lastName?.[0] ?? '';
+    return (first + last).toUpperCase() || 'U';
+  });
 
   constructor() {
     this.breakpointObserver.observe([Breakpoints.Handset, Breakpoints.TabletPortrait]).subscribe((result) => {

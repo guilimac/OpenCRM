@@ -36,6 +36,24 @@ export class AuthService {
     return this.http.post<{ message: string }>('/api/v1/auth/change-password', payload);
   }
 
+  getProfile(): Observable<UserProfile> {
+    return this.http.get<UserProfile>('/api/v1/auth/me').pipe(
+      tap((user) => {
+        this._currentUser.set(user);
+        localStorage.setItem('user_profile', JSON.stringify(user));
+      }),
+    );
+  }
+
+  updateProfile(payload: Partial<UserProfile>): Observable<UserProfile> {
+    return this.http.put<UserProfile>('/api/v1/auth/profile', payload).pipe(
+      tap((user) => {
+        this._currentUser.set(user);
+        localStorage.setItem('user_profile', JSON.stringify(user));
+      }),
+    );
+  }
+
   forgotPassword(email: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>('/api/v1/auth/forgot-password', { email });
   }

@@ -71,4 +71,8 @@ export class I18nService {
 
     return val;
   }
+
+  translate(key: string, params?: Record<string, string | number>): string {
+    return this.t(key, params);
+  }
 }

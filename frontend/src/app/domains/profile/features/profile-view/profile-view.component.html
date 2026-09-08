@@ -1,0 +1,399 @@
+<div class="profile-container">
+  <!-- Profile Banner Header -->
+  <div class="profile-banner-card">
+    <div class="banner-layout">
+      <div class="banner-user-section">
+        <div class="banner-avatar-wrapper" (click)="selectedTab.set(1)" matTooltip="{{ 'PROFILE.CHOOSE_AVATAR' | translate }}">
+          @if (avatarPreview()) {
+            <img [src]="avatarPreview()!" alt="Avatar" class="banner-avatar-img" />
+          } @else {
+            <div class="banner-avatar-fallback">{{ userInitials() }}</div>
+          }
+          <div class="avatar-edit-badge">
+            <mat-icon>photo_camera</mat-icon>
+          </div>
+        </div>
+
+        <div class="banner-info">
+          <div class="banner-name-row">
+            <h1 class="banner-name">{{ user()?.firstName }} {{ user()?.lastName }}</h1>
+            <span class="role-badge">{{ user()?.role }}</span>
+            <span class="status-pill">
+              <span class="status-dot"></span>
+              {{ 'PROFILE.STATUS_ACTIVE' | translate }}
+            </span>
+          </div>
+
+          <div class="banner-details-row">
+            <div class="detail-item">
+              <mat-icon>email</mat-icon>
+              <span>{{ user()?.email }}</span>
+            </div>
+            @if (user()?.jobTitle) {
+              <div class="detail-item">
+                <mat-icon>badge</mat-icon>
+                <span>{{ user()?.jobTitle }}</span>
+              </div>
+            }
+            @if (user()?.phone) {
+              <div class="detail-item">
+                <mat-icon>phone</mat-icon>
+                <span>{{ user()?.phone }}</span>
+              </div>
+            }
+            @if (user()?.createdAt) {
+              <div class="detail-item">
+                <mat-icon>event</mat-icon>
+                <span>{{ 'PROFILE.MEMBER_SINCE' | translate }}: {{ user()?.createdAt | date:'mediumDate' }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Grid -->
+  <div class="profile-content-grid">
+    <!-- Left Column: Interactive Tabs -->
+    <mat-card class="tabs-card">
+      <mat-tab-group [selectedIndex]="selectedTab()" (selectedIndexChange)="selectedTab.set($event)" animationDuration="200ms">
+        <!-- TAB 1: Personal & Professional Info -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="mr-sm">person</mat-icon>
+            <span>{{ 'PROFILE.TAB_INFO' | translate }}</span>
+          </ng-template>
+
+          <div class="tab-body">
+            <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+              <h3 class="section-heading">
+                <mat-icon>contact_page</mat-icon>
+                {{ 'PROFILE.SECTION_PERSONAL' | translate }}
+              </h3>
+
+              <div class="form-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'PROFILE.FIRST_NAME' | translate }}</mat-label>
+                  <input matInput formControlName="firstName" required />
+                  <mat-icon matPrefix>badge</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'PROFILE.LAST_NAME' | translate }}</mat-label>
+                  <input matInput formControlName="lastName" required />
+                  <mat-icon matPrefix>badge</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'PROFILE.EMAIL' | translate }}</mat-label>
+                  <input matInput formControlName="email" type="email" required />
+                  <mat-icon matPrefix>email</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'PROFILE.PHONE' | translate }}</mat-label>
+                  <input matInput formControlName="phone" placeholder="+55 11 99999-9999" />
+                  <mat-icon matPrefix>phone</mat-icon>
+                </mat-form-field>
+              </div>
+
+              <mat-divider class="section-divider"></mat-divider>
+
+              <h3 class="section-heading">
+                <mat-icon>work</mat-icon>
+                {{ 'PROFILE.SECTION_PROFESSIONAL' | translate }}
+              </h3>
+
+              <div class="form-grid">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'PROFILE.JOB_TITLE' | translate }}</mat-label>
+                  <input matInput formControlName="jobTitle" placeholder="Ex: Executivo de Vendas Enterprise" />
+                  <mat-icon matPrefix>business_center</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'PROFILE.BIO' | translate }}</mat-label>
+                  <textarea
+                    matInput
+                    formControlName="bio"
+                    rows="3"
+                    [placeholder]="'PROFILE.BIO_PLACEHOLDER' | translate"
+                  ></textarea>
+                  <mat-icon matPrefix>description</mat-icon>
+                </mat-form-field>
+              </div>
+
+              <div class="form-actions">
+                <button
+                  mat-flat-button
+                  color="primary"
+                  type="submit"
+                  [disabled]="profileForm.invalid || isSaving()"
+                >
+                  @if (isSaving()) {
+                    <mat-spinner diameter="18" class="mr-sm"></mat-spinner>
+                  }
+                  <span>{{ 'PROFILE.SAVE_PROFILE_BTN' | translate }}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </mat-tab>
+
+        <!-- TAB 2: Avatar & Foto -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="mr-sm">account_circle</mat-icon>
+            <span>{{ 'PROFILE.TAB_AVATAR' | translate }}</span>
+          </ng-template>
+
+          <div class="tab-body avatar-tab-layout">
+            <!-- Current Avatar Preview -->
+            <div class="avatar-preview-section">
+              @if (avatarPreview()) {
+                <img [src]="avatarPreview()!" alt="Avatar Preview" class="large-preview-img" />
+              } @else {
+                <div class="large-preview-fallback">{{ userInitials() }}</div>
+              }
+              <div class="preview-text">
+                <h4>{{ 'PROFILE.AVATAR_TITLE' | translate }}</h4>
+                <p>{{ 'PROFILE.AVATAR_DESC' | translate }}</p>
+                <div class="flex-row gap-sm align-center">
+                  <button mat-stroked-button type="button" (click)="fileInput.click()">
+                    <mat-icon>upload</mat-icon>
+                    <span>{{ 'PROFILE.UPLOAD_AVATAR_BTN' | translate }}</span>
+                  </button>
+                  <input
+                    type="file"
+                    #fileInput
+                    (change)="onFileSelected($event)"
+                    accept="image/*"
+                    class="file-input-hidden"
+                  />
+                  @if (avatarPreview()) {
+                    <button mat-button color="warn" type="button" (click)="removeAvatar()">
+                      <mat-icon>delete</mat-icon>
+                      <span>{{ 'PROFILE.REMOVE_AVATAR_BTN' | translate }}</span>
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Preset Avatars Grid -->
+            <div>
+              <h3 class="section-heading">
+                <mat-icon>palette</mat-icon>
+                {{ 'PROFILE.PRESET_AVATARS' | translate }}
+              </h3>
+              <div class="preset-grid">
+                @for (preset of presetAvatars; track preset) {
+                  <div
+                    class="preset-card"
+                    [class.selected]="avatarPreview() === preset"
+                    (click)="selectPreset(preset)"
+                    role="button"
+                    tabindex="0"
+                  >
+                    <img [src]="preset" alt="Preset avatar" loading="lazy" />
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Custom URL Input -->
+            <div class="custom-url-section">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'PROFILE.CUSTOM_URL_LABEL' | translate }}</mat-label>
+                <input
+                  matInput
+                  [placeholder]="'PROFILE.CUSTOM_URL_PLACEHOLDER' | translate"
+                  [value]="customUrlInput()"
+                  (input)="onCustomUrlChange($event)"
+                />
+                <mat-icon matPrefix>link</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <div class="form-actions">
+              <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                (click)="saveAvatar()"
+                [disabled]="isSaving()"
+              >
+                @if (isSaving()) {
+                  <mat-spinner diameter="18" class="mr-sm"></mat-spinner>
+                }
+                <span>{{ 'PROFILE.SAVE_AVATAR_BTN' | translate }}</span>
+              </button>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- TAB 3: Preferences -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="mr-sm">settings</mat-icon>
+            <span>{{ 'PROFILE.TAB_PREFERENCES' | translate }}</span>
+          </ng-template>
+
+          <div class="tab-body">
+            <form [formGroup]="preferencesForm" (ngSubmit)="savePreferences()">
+              <h3 class="section-heading">
+                <mat-icon>tune</mat-icon>
+                {{ 'PROFILE.TAB_PREFERENCES' | translate }}
+              </h3>
+
+              <div class="form-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'PROFILE.PREF_LANG' | translate }}</mat-label>
+                  <mat-select formControlName="language">
+                    <mat-option value="pt">🇧🇷 Português (Brasil)</mat-option>
+                    <mat-option value="en">🇺🇸 English (US)</mat-option>
+                  </mat-select>
+                  <mat-icon matPrefix>language</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'PROFILE.PREF_TIMEZONE' | translate }}</mat-label>
+                  <mat-select formControlName="timezone">
+                    <mat-option value="America/Sao_Paulo">America/Sao_Paulo (UTC-3)</mat-option>
+                    <mat-option value="America/New_York">America/New_York (UTC-5)</mat-option>
+                    <mat-option value="America/Chicago">America/Chicago (UTC-6)</mat-option>
+                    <mat-option value="America/Los_Angeles">America/Los_Angeles (UTC-8)</mat-option>
+                    <mat-option value="Europe/London">Europe/London (UTC+0)</mat-option>
+                    <mat-option value="Europe/Paris">Europe/Paris (UTC+1)</mat-option>
+                    <mat-option value="Europe/Lisbon">Europe/Lisbon (UTC+0)</mat-option>
+                    <mat-option value="UTC">UTC Standard</mat-option>
+                  </mat-select>
+                  <mat-icon matPrefix>schedule</mat-icon>
+                </mat-form-field>
+              </div>
+
+              <div class="form-actions">
+                <button
+                  mat-flat-button
+                  color="primary"
+                  type="submit"
+                  [disabled]="preferencesForm.invalid || isSaving()"
+                >
+                  @if (isSaving()) {
+                    <mat-spinner diameter="18" class="mr-sm"></mat-spinner>
+                  }
+                  <span>{{ 'PROFILE.SAVE_PREFERENCES_BTN' | translate }}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </mat-tab>
+
+        <!-- TAB 4: Security & Password -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="mr-sm">lock</mat-icon>
+            <span>{{ 'PROFILE.TAB_SECURITY' | translate }}</span>
+          </ng-template>
+
+          <div class="tab-body">
+            <form [formGroup]="passwordForm" (ngSubmit)="savePassword()">
+              <h3 class="section-heading">
+                <mat-icon>security</mat-icon>
+                {{ 'PROFILE.SEC_TITLE' | translate }}
+              </h3>
+
+              <div class="form-grid">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'PROFILE.SEC_CURRENT_PW' | translate }}</mat-label>
+                  <input matInput formControlName="currentPassword" type="password" required />
+                  <mat-icon matPrefix>lock_outline</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'PROFILE.SEC_NEW_PW' | translate }}</mat-label>
+                  <input matInput formControlName="newPassword" type="password" required />
+                  <mat-icon matPrefix>vpn_key</mat-icon>
+                  <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('minlength')">
+                    Mínimo de 6 caracteres
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'PROFILE.SEC_CONFIRM_PW' | translate }}</mat-label>
+                  <input matInput formControlName="confirmPassword" type="password" required />
+                  <mat-icon matPrefix>check_circle</mat-icon>
+                  <mat-error *ngIf="passwordForm.hasError('passwordMismatch') && passwordForm.get('confirmPassword')?.touched">
+                    As senhas não coincidem
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="form-actions">
+                <button
+                  mat-flat-button
+                  color="primary"
+                  type="submit"
+                  [disabled]="passwordForm.invalid || isSavingPassword()"
+                >
+                  @if (isSavingPassword()) {
+                    <mat-spinner diameter="18" class="mr-sm"></mat-spinner>
+                  }
+                  <span>{{ 'PROFILE.CHANGE_PW_BTN' | translate }}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card>
+
+    <!-- Right Column: Account Details Sidebar -->
+    <div class="sidebar-card">
+      <div class="sidebar-header">
+        <mat-icon>badge</mat-icon>
+        <h3>{{ 'PROFILE.TAB_ACCOUNT' | translate }}</h3>
+      </div>
+
+      <div class="info-list">
+        <div class="info-row">
+          <span class="info-label">{{ 'PROFILE.ACCOUNT_ID' | translate }}</span>
+          <div class="info-value-box">
+            <span class="truncate">{{ user()?.id }}</span>
+            <button mat-icon-button (click)="copyToClipboard(user()?.id)" [matTooltip]="'PROFILE.COPY_ID_TOOLTIP' | translate">
+              <mat-icon class="icon-xs">content_copy</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">{{ 'PROFILE.ORG_ID' | translate }}</span>
+          <div class="info-value-box">
+            <span class="truncate">{{ user()?.orgId }}</span>
+            <button mat-icon-button (click)="copyToClipboard(user()?.orgId)" [matTooltip]="'PROFILE.COPY_ID_TOOLTIP' | translate">
+              <mat-icon class="icon-xs">content_copy</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">{{ 'PROFILE.ROLE' | translate }}</span>
+          <span class="info-value-simple">{{ user()?.role }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Status</span>
+          <span class="info-value-simple">{{ 'PROFILE.STATUS_ACTIVE' | translate }}</span>
+        </div>
+
+        @if (user()?.createdAt) {
+          <div class="info-row">
+            <span class="info-label">{{ 'PROFILE.MEMBER_SINCE' | translate }}</span>
+            <span class="info-value-simple">{{ user()?.createdAt | date:'medium' }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

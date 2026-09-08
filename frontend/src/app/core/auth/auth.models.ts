@@ -5,6 +5,13 @@ export interface UserProfile {
   lastName: string;
   role: 'SUPERADMIN' | 'ADMIN' | 'MANAGER' | 'SALES_REP' | 'SUPPORT_AGENT';
   orgId: string;
+  avatarUrl?: string | null;
+  phone?: string | null;
+  jobTitle?: string | null;
+  bio?: string | null;
+  language?: string | null;
+  timezone?: string | null;
+  createdAt?: string;
 }
 
 export interface AuthTokens {
