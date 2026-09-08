@@ -36,6 +36,24 @@ export class UserOrmEntity {
   })
   role!: string;
 
+  @Column('mediumtext', { name: 'avatar_url', nullable: true })
+  avatarUrl?: string | null;
+
+  @Column('varchar', { length: 50, nullable: true })
+  phone?: string | null;
+
+  @Column('varchar', { length: 100, name: 'job_title', nullable: true })
+  jobTitle?: string | null;
+
+  @Column('text', { nullable: true })
+  bio?: string | null;
+
+  @Column('varchar', { length: 10, default: 'pt', nullable: true })
+  language?: string | null;
+
+  @Column('varchar', { length: 50, default: 'America/Sao_Paulo', nullable: true })
+  timezone?: string | null;
+
   @Column('boolean', { name: 'is_active', default: true })
   isActive!: boolean;
 

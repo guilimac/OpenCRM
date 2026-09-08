@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Inject,
   Post,
+  Put,
   UseGuards,
   BadRequestException,
   UnauthorizedException,
@@ -17,6 +18,8 @@ import { RefreshTokenUseCase } from '../../../../../core/application/auth/refres
 import { ChangePasswordUseCase } from '../../../../../core/application/auth/change-password.use-case.js';
 import { RequestPasswordResetUseCase } from '../../../../../core/application/auth/request-password-reset.use-case.js';
 import { ResetPasswordUseCase } from '../../../../../core/application/auth/reset-password.use-case.js';
+import { GetProfileUseCase } from '../../../../../core/application/auth/get-profile.use-case.js';
+import { UpdateProfileUseCase } from '../../../../../core/application/auth/update-profile.use-case.js';
 import { TOKEN_PORT, type ITokenPort, type AccessTokenPayload } from '../../../../../core/application/common/ports/token.port.js';
 import {
   RegisterRequestDto,
@@ -25,6 +28,7 @@ import {
   ChangePasswordDto,
   ForgotPasswordRequestDto,
   ResetPasswordRequestDto,
+  UpdateProfileDto,
 } from './dto/auth.dto.js';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard.js';
 import { CurrentUser } from '../decorators/current-user.decorator.js';
@@ -39,6 +43,8 @@ export class AuthController {
     private readonly changePasswordUseCase: ChangePasswordUseCase,
     private readonly requestPasswordResetUseCase: RequestPasswordResetUseCase,
     private readonly resetPasswordUseCase: ResetPasswordUseCase,
+    private readonly getProfileUseCase: GetProfileUseCase,
+    private readonly updateProfileUseCase: UpdateProfileUseCase,
     @Inject(TOKEN_PORT)
     private readonly tokenPort: ITokenPort,
   ) {}
@@ -60,6 +66,12 @@ export class AuthController {
         lastName: user.lastName,
         role: user.role.value,
         orgId: user.orgId,
+        avatarUrl: user.avatarUrl ?? null,
+        phone: user.phone ?? null,
+        jobTitle: user.jobTitle ?? null,
+        bio: user.bio ?? null,
+        language: user.language ?? 'pt',
+        timezone: user.timezone ?? 'America/Sao_Paulo',
       },
       tokens,
     };
@@ -83,6 +95,12 @@ export class AuthController {
         lastName: user.lastName,
         role: user.role.value,
         orgId: user.orgId,
+        avatarUrl: user.avatarUrl ?? null,
+        phone: user.phone ?? null,
+        jobTitle: user.jobTitle ?? null,
+        bio: user.bio ?? null,
+        language: user.language ?? 'pt',
+        timezone: user.timezone ?? 'America/Sao_Paulo',
       },
       tokens,
     };
@@ -112,8 +130,32 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current authenticated user profile' })
-  getCurrentUser(@CurrentUser() user: AccessTokenPayload) {
-    return user;
+  async getCurrentUser(@CurrentUser() user: AccessTokenPayload) {
+    const result = await this.getProfileUseCase.execute(user.sub);
+    if (result.isFailure) {
+      throw new BadRequestException(result.error);
+    }
+    return result.getValue();
+  }
+
+  @Put('profile')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update profile data for currently authenticated user' })
+  @ApiResponse({ status: 200, description: 'Profile updated successfully' })
+  @ApiResponse({ status: 400, description: 'Validation failure or email collision' })
+  async updateProfile(
+    @CurrentUser() user: AccessTokenPayload,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    const result = await this.updateProfileUseCase.execute({
+      userId: user.sub,
+      ...dto,
+    });
+    if (result.isFailure) {
+      throw new BadRequestException(result.error);
+    }
+    return result.getValue();
   }
 
   @Post('change-password')

@@ -9,6 +9,8 @@ import { RefreshTokenUseCase } from '../../core/application/auth/refresh-token.u
 import { ChangePasswordUseCase } from '../../core/application/auth/change-password.use-case.js';
 import { RequestPasswordResetUseCase } from '../../core/application/auth/request-password-reset.use-case.js';
 import { ResetPasswordUseCase } from '../../core/application/auth/reset-password.use-case.js';
+import { GetProfileUseCase } from '../../core/application/auth/get-profile.use-case.js';
+import { UpdateProfileUseCase } from '../../core/application/auth/update-profile.use-case.js';
 import { AuthController } from '../adapters/primary/rest/auth/auth.controller.js';
 import { JwtAuthGuard } from '../adapters/primary/rest/guards/jwt-auth.guard.js';
 
@@ -36,6 +38,8 @@ import { JwtAuthGuard } from '../adapters/primary/rest/guards/jwt-auth.guard.js'
     ChangePasswordUseCase,
     RequestPasswordResetUseCase,
     ResetPasswordUseCase,
+    GetProfileUseCase,
+    UpdateProfileUseCase,
     JwtAuthGuard,
   ],
   exports: [
@@ -47,6 +51,8 @@ import { JwtAuthGuard } from '../adapters/primary/rest/guards/jwt-auth.guard.js'
     ChangePasswordUseCase,
     RequestPasswordResetUseCase,
     ResetPasswordUseCase,
+    GetProfileUseCase,
+    UpdateProfileUseCase,
   ],
 })
 export class AuthModule {}

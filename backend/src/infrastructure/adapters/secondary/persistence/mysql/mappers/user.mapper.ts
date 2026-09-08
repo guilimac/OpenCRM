@@ -16,6 +16,12 @@ export class UserMapper {
         lastName: orm.lastName,
         role,
         isActive: orm.isActive,
+        avatarUrl: orm.avatarUrl,
+        phone: orm.phone,
+        jobTitle: orm.jobTitle,
+        bio: orm.bio,
+        language: orm.language,
+        timezone: orm.timezone,
         lastLoginAt: orm.lastLoginAt,
         createdAt: orm.createdAt,
         updatedAt: orm.updatedAt,
@@ -35,6 +41,12 @@ export class UserMapper {
     orm.firstName = domain.firstName;
     orm.lastName = domain.lastName;
     orm.role = domain.role.value;
+    orm.avatarUrl = domain.avatarUrl ?? null;
+    orm.phone = domain.phone ?? null;
+    orm.jobTitle = domain.jobTitle ?? null;
+    orm.bio = domain.bio ?? null;
+    orm.language = domain.language ?? 'pt';
+    orm.timezone = domain.timezone ?? 'America/Sao_Paulo';
     orm.isActive = domain.isActive;
     orm.lastLoginAt = domain.lastLoginAt;
     orm.createdAt = domain.createdAt;

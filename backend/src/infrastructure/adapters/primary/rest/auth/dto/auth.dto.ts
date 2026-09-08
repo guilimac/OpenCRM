@@ -89,3 +89,53 @@ export class ResetPasswordRequestDto {
   newPassword!: string;
 }
 
+export class UpdateProfileDto {
+  @ApiPropertyOptional({ example: 'John' })
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  firstName?: string;
+
+  @ApiPropertyOptional({ example: 'Doe' })
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  lastName?: string;
+
+  @ApiPropertyOptional({ example: 'john.doe@empresa.com' })
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @ApiPropertyOptional({ example: 'https://example.com/avatar.png' })
+  @IsOptional()
+  @IsString()
+  avatarUrl?: string | null;
+
+  @ApiPropertyOptional({ example: '+55 11 99999-8888' })
+  @IsOptional()
+  @IsString()
+  phone?: string | null;
+
+  @ApiPropertyOptional({ example: 'Diretor Comercial' })
+  @IsOptional()
+  @IsString()
+  jobTitle?: string | null;
+
+  @ApiPropertyOptional({ example: 'Especialista em vendas B2B' })
+  @IsOptional()
+  @IsString()
+  bio?: string | null;
+
+  @ApiPropertyOptional({ example: 'pt' })
+  @IsOptional()
+  @IsString()
+  language?: string | null;
+
+  @ApiPropertyOptional({ example: 'America/Sao_Paulo' })
+  @IsOptional()
+  @IsString()
+  timezone?: string | null;
+}
+
+
