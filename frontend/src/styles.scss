@@ -54,10 +54,94 @@ body.dark-theme {
   color: #f1f5f9;
 }
 
-// WCAG 2.1 AA Accessibility Focus Ring
-:focus-visible {
+// WCAG 2.1 AA Accessibility Focus Ring (applied to interactive elements except inputs, textareas, and selects)
+:focus-visible:not(input):not(textarea):not(select):not(.mat-mdc-input-element) {
   outline: 2px solid #2563eb !important;
   outline-offset: 2px !important;
+}
+
+// =============================================================================
+// BORDERLESS INPUTS & FORM FIELDS
+// =============================================================================
+
+// Remove native borders and focus outlines from inputs, textareas, selects
+input,
+textarea,
+select,
+.mat-mdc-input-element {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+
+  &:focus,
+  &:focus-visible {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+}
+
+// Remove borders from Angular Material form fields (outline & standard)
+.mat-mdc-form-field {
+  --mdc-outlined-text-field-outline-color: transparent !important;
+  --mdc-outlined-text-field-hover-outline-color: transparent !important;
+  --mdc-outlined-text-field-focus-outline-color: transparent !important;
+  --mdc-outlined-text-field-disabled-outline-color: transparent !important;
+  --mdc-outlined-text-field-error-outline-color: transparent !important;
+  --mdc-outlined-text-field-outline-width: 0px !important;
+  --mdc-outlined-text-field-focus-outline-width: 0px !important;
+  --mdc-outlined-text-field-hover-outline-width: 0px !important;
+  --mat-form-field-outlined-outline-color: transparent !important;
+  --mat-form-field-outlined-hover-outline-color: transparent !important;
+  --mat-form-field-outlined-focus-outline-color: transparent !important;
+
+  .mdc-notched-outline,
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border: none !important;
+    border-width: 0 !important;
+    border-color: transparent !important;
+  }
+
+  .mat-mdc-text-field-wrapper {
+    background-color: #f1f5f9 !important;
+    border-radius: 10px !important;
+    border: none !important;
+    box-shadow: none !important;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  &:hover .mat-mdc-text-field-wrapper {
+    background-color: #e8ecf2 !important;
+  }
+
+  &.mat-focused .mat-mdc-text-field-wrapper {
+    background-color: #e2e8f0 !important;
+  }
+
+  &.mat-form-field-invalid .mat-mdc-text-field-wrapper {
+    background-color: #fef2f2 !important;
+  }
+}
+
+// Dark theme support for borderless form fields
+body.dark-theme .mat-mdc-form-field {
+  .mat-mdc-text-field-wrapper {
+    background-color: #1e293b !important;
+  }
+
+  &:hover .mat-mdc-text-field-wrapper {
+    background-color: #243248 !important;
+  }
+
+  &.mat-focused .mat-mdc-text-field-wrapper {
+    background-color: #334155 !important;
+  }
+
+  &.mat-form-field-invalid .mat-mdc-text-field-wrapper {
+    background-color: rgba(239, 68, 68, 0.15) !important;
+  }
 }
 
 // Helper layout utility classes
