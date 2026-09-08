@@ -1,0 +1,442 @@
+<div class="email-settings-container">
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="header-left">
+      <div class="header-icon-box">
+        <mat-icon>forward_to_inbox</mat-icon>
+      </div>
+      <div>
+        <h1 class="page-title">{{ 'EMAIL_SETTINGS.TITLE' | translate }}</h1>
+        <p class="page-subtitle">{{ 'EMAIL_SETTINGS.SUBTITLE' | translate }}</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <a mat-stroked-button routerLink="/settings" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'EMAIL_SETTINGS.BACK_TO_SETTINGS' | translate }}
+      </a>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>{{ 'COMMON.LOADING' | translate }}</p>
+    </div>
+  } @else {
+    <form [formGroup]="emailForm" (ngSubmit)="save()" class="settings-form">
+      <div class="layout-grid">
+        <!-- Main Form Column -->
+        <div class="main-column">
+          <!-- Step 1: Provider Selection Cards -->
+          <mat-card class="section-card provider-selection-card">
+            <div class="section-header">
+              <h2 class="section-title">
+                <mat-icon class="section-icon">swap_horiz</mat-icon>
+                {{ 'EMAIL_SETTINGS.PROVIDER_SECTION_TITLE' | translate }}
+              </h2>
+              <p class="section-subtitle">{{ 'EMAIL_SETTINGS.PROVIDER_SECTION_DESC' | translate }}</p>
+            </div>
+
+            <div class="provider-cards-grid">
+              <!-- Mailgun Option -->
+              <div
+                class="provider-card"
+                [class.selected]="currentProvider === 'MAILGUN'"
+                (click)="selectProvider('MAILGUN')"
+                role="button"
+                tabindex="0"
+              >
+                <div class="provider-radio">
+                  <span class="radio-circle" [class.checked]="currentProvider === 'MAILGUN'"></span>
+                </div>
+                <div class="provider-icon-wrapper mailgun-icon">
+                  <mat-icon>send_and_archive</mat-icon>
+                </div>
+                <div class="provider-content">
+                  <div class="provider-title-row">
+                    <h3 class="provider-name">{{ 'EMAIL_SETTINGS.PROVIDER_MAILGUN' | translate }}</h3>
+                    <span class="badge-recommended">API</span>
+                  </div>
+                  <p class="provider-desc">{{ 'EMAIL_SETTINGS.PROVIDER_MAILGUN_DESC' | translate }}</p>
+                </div>
+              </div>
+
+              <!-- SMTP Option -->
+              <div
+                class="provider-card"
+                [class.selected]="currentProvider === 'SMTP'"
+                (click)="selectProvider('SMTP')"
+                role="button"
+                tabindex="0"
+              >
+                <div class="provider-radio">
+                  <span class="radio-circle" [class.checked]="currentProvider === 'SMTP'"></span>
+                </div>
+                <div class="provider-icon-wrapper smtp-icon">
+                  <mat-icon>dns</mat-icon>
+                </div>
+                <div class="provider-content">
+                  <div class="provider-title-row">
+                    <h3 class="provider-name">{{ 'EMAIL_SETTINGS.PROVIDER_SMTP' | translate }}</h3>
+                    <span class="badge-standard">SMTP / TLS</span>
+                  </div>
+                  <p class="provider-desc">{{ 'EMAIL_SETTINGS.PROVIDER_SMTP_DESC' | translate }}</p>
+                </div>
+              </div>
+            </div>
+          </mat-card>
+
+          <!-- Step 2: Sender Information (Common to both) -->
+          <mat-card class="section-card">
+            <div class="section-header">
+              <h2 class="section-title">
+                <mat-icon class="section-icon">person_outline</mat-icon>
+                {{ 'EMAIL_SETTINGS.SENDER_INFO_TITLE' | translate }}
+              </h2>
+            </div>
+
+            <div class="form-row two-cols">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'EMAIL_SETTINGS.FROM_NAME' | translate }}</mat-label>
+                <input
+                  matInput
+                  formControlName="fromName"
+                  [placeholder]="'EMAIL_SETTINGS.FROM_NAME_PLACEHOLDER' | translate"
+                  required
+                />
+                <mat-icon matPrefix>badge</mat-icon>
+                @if (emailForm.get('fromName')?.touched && emailForm.get('fromName')?.invalid) {
+                  <mat-error>{{ 'SETTINGS.REQUIRED_FIELD' | translate }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'EMAIL_SETTINGS.FROM_EMAIL' | translate }}</mat-label>
+                <input
+                  matInput
+                  type="email"
+                  formControlName="fromEmail"
+                  [placeholder]="'EMAIL_SETTINGS.FROM_EMAIL_PLACEHOLDER' | translate"
+                  required
+                />
+                <mat-icon matPrefix>email</mat-icon>
+                @if (emailForm.get('fromEmail')?.touched && emailForm.get('fromEmail')?.invalid) {
+                  <mat-error>{{ 'CUSTOMER.VALIDATION_EMAIL_INVALID' | translate }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-row two-cols">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'EMAIL_SETTINGS.REPLY_TO' | translate }}</mat-label>
+                <input
+                  matInput
+                  type="email"
+                  formControlName="replyTo"
+                  [placeholder]="'EMAIL_SETTINGS.REPLY_TO_PLACEHOLDER' | translate"
+                />
+                <mat-icon matPrefix>reply</mat-icon>
+              </mat-form-field>
+
+              <div class="toggle-container">
+                <mat-slide-toggle formControlName="isActive" color="primary">
+                  {{ 'EMAIL_SETTINGS.IS_ACTIVE' | translate }}
+                </mat-slide-toggle>
+                <span class="toggle-hint">{{ 'EMAIL_SETTINGS.IS_ACTIVE_HINT' | translate }}</span>
+              </div>
+            </div>
+          </mat-card>
+
+          <!-- Step 3: Provider-Specific Credentials -->
+          @if (currentProvider === 'MAILGUN') {
+            <!-- MAILGUN SECTION -->
+            <mat-card class="section-card">
+              <div class="section-header">
+                <h2 class="section-title">
+                  <mat-icon class="section-icon">key</mat-icon>
+                  {{ 'EMAIL_SETTINGS.MAILGUN_CONFIG_TITLE' | translate }}
+                </h2>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>{{ 'EMAIL_SETTINGS.MAILGUN_API_KEY' | translate }}</mat-label>
+                  <input
+                    matInput
+                    [type]="hideApiKey() ? 'password' : 'text'"
+                    formControlName="mailgunApiKey"
+                    placeholder="key-xxxxxxxxxxxxxxxxxxxxxxxx"
+                    required
+                  />
+                  <mat-icon matPrefix>vpn_key</mat-icon>
+                  <button
+                    mat-icon-button
+                    matSuffix
+                    type="button"
+                    (click)="toggleApiKeyVisibility()"
+                    [attr.aria-label]="hideApiKey() ? 'Mostrar chave' : 'Ocultar chave'"
+                  >
+                    <mat-icon>{{ hideApiKey() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  </button>
+                  <mat-hint>{{ 'EMAIL_SETTINGS.MAILGUN_API_KEY_HINT' | translate }}</mat-hint>
+                </mat-form-field>
+              </div>
+
+              <div class="form-row two-cols mt-md">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'EMAIL_SETTINGS.MAILGUN_DOMAIN' | translate }}</mat-label>
+                  <input
+                    matInput
+                    formControlName="mailgunDomain"
+                    [placeholder]="'EMAIL_SETTINGS.MAILGUN_DOMAIN_PLACEHOLDER' | translate"
+                    required
+                  />
+                  <mat-icon matPrefix>public</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'EMAIL_SETTINGS.MAILGUN_HOST' | translate }}</mat-label>
+                  <mat-select formControlName="mailgunHost">
+                    <mat-option value="api.mailgun.net">{{ 'EMAIL_SETTINGS.MAILGUN_HOST_US' | translate }}</mat-option>
+                    <mat-option value="api.eu.mailgun.net">{{ 'EMAIL_SETTINGS.MAILGUN_HOST_EU' | translate }}</mat-option>
+                  </mat-select>
+                  <mat-icon matPrefix>travel_explore</mat-icon>
+                </mat-form-field>
+              </div>
+            </mat-card>
+          } @else {
+            <!-- SMTP SECTION -->
+            <mat-card class="section-card">
+              <div class="section-header">
+                <div class="title-with-presets">
+                  <h2 class="section-title">
+                    <mat-icon class="section-icon">settings_input_component</mat-icon>
+                    {{ 'EMAIL_SETTINGS.SMTP_CONFIG_TITLE' | translate }}
+                  </h2>
+                  <div class="presets-row">
+                    <button
+                      type="button"
+                      mat-stroked-button
+                      class="preset-chip"
+                      (click)="setSmtpPreset(587, false)"
+                    >
+                      Porta 587 (TLS)
+                    </button>
+                    <button
+                      type="button"
+                      mat-stroked-button
+                      class="preset-chip"
+                      (click)="setSmtpPreset(465, true)"
+                    >
+                      Porta 465 (SSL)
+                    </button>
+                    <button
+                      type="button"
+                      mat-stroked-button
+                      class="preset-chip"
+                      (click)="setSmtpPreset(25, false)"
+                    >
+                      Porta 25
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row two-cols">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'EMAIL_SETTINGS.SMTP_HOST' | translate }}</mat-label>
+                  <input
+                    matInput
+                    formControlName="smtpHost"
+                    [placeholder]="'EMAIL_SETTINGS.SMTP_HOST_PLACEHOLDER' | translate"
+                    required
+                  />
+                  <mat-icon matPrefix>dns</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'EMAIL_SETTINGS.SMTP_PORT' | translate }}</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    formControlName="smtpPort"
+                    [placeholder]="'EMAIL_SETTINGS.SMTP_PORT_PLACEHOLDER' | translate"
+                    required
+                  />
+                  <mat-icon matPrefix>tag</mat-icon>
+                </mat-form-field>
+              </div>
+
+              <div class="form-row two-cols">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'EMAIL_SETTINGS.SMTP_USER' | translate }}</mat-label>
+                  <input
+                    matInput
+                    formControlName="smtpUser"
+                    [placeholder]="'EMAIL_SETTINGS.SMTP_USER_PLACEHOLDER' | translate"
+                  />
+                  <mat-icon matPrefix>account_circle</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'EMAIL_SETTINGS.SMTP_PASSWORD' | translate }}</mat-label>
+                  <input
+                    matInput
+                    [type]="hideSmtpPassword() ? 'password' : 'text'"
+                    formControlName="smtpPassword"
+                    placeholder="••••••••••••"
+                  />
+                  <mat-icon matPrefix>lock</mat-icon>
+                  <button
+                    mat-icon-button
+                    matSuffix
+                    type="button"
+                    (click)="toggleSmtpPasswordVisibility()"
+                    [attr.aria-label]="hideSmtpPassword() ? 'Mostrar senha' : 'Ocultar senha'"
+                  >
+                    <mat-icon>{{ hideSmtpPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  </button>
+                  <mat-hint>{{ 'EMAIL_SETTINGS.SMTP_PASSWORD_HINT' | translate }}</mat-hint>
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <div class="toggle-container">
+                  <mat-slide-toggle formControlName="smtpSecure" color="primary">
+                    {{ 'EMAIL_SETTINGS.SMTP_SECURE' | translate }}
+                  </mat-slide-toggle>
+                  <span class="toggle-hint">{{ 'EMAIL_SETTINGS.SMTP_SECURE_HINT' | translate }}</span>
+                </div>
+              </div>
+            </mat-card>
+          }
+
+          <!-- Step 4: Test Connection Card -->
+          <mat-card class="section-card test-card">
+            <div class="section-header">
+              <h2 class="section-title">
+                <mat-icon class="section-icon">mark_email_read</mat-icon>
+                {{ 'EMAIL_SETTINGS.TEST_SECTION_TITLE' | translate }}
+              </h2>
+              <p class="section-subtitle">{{ 'EMAIL_SETTINGS.TEST_SECTION_DESC' | translate }}</p>
+            </div>
+
+            <div class="test-controls-row">
+              <mat-form-field appearance="outline" class="test-input-field">
+                <mat-label>{{ 'EMAIL_SETTINGS.TEST_EMAIL_TARGET' | translate }}</mat-label>
+                <input
+                  matInput
+                  type="email"
+                  formControlName="testTargetEmail"
+                  [placeholder]="'EMAIL_SETTINGS.TEST_EMAIL_PLACEHOLDER' | translate"
+                />
+                <mat-icon matPrefix>contact_mail</mat-icon>
+              </mat-form-field>
+
+              <button
+                type="button"
+                mat-stroked-button
+                color="primary"
+                class="test-btn"
+                (click)="sendTestEmail()"
+                [disabled]="testing() || saving()"
+              >
+                @if (testing()) {
+                  <mat-spinner diameter="18" class="btn-spinner"></mat-spinner>
+                } @else {
+                  <mat-icon>send</mat-icon>
+                }
+                <span>{{ (testing() ? 'EMAIL_SETTINGS.TESTING' : 'EMAIL_SETTINGS.BTN_TEST_EMAIL') | translate }}</span>
+              </button>
+            </div>
+
+            @if (testResult()) {
+              <div
+                class="test-alert"
+                [class.alert-success]="testResult()!.success"
+                [class.alert-error]="!testResult()!.success"
+              >
+                <mat-icon class="alert-icon">
+                  {{ testResult()!.success ? 'check_circle' : 'error_outline' }}
+                </mat-icon>
+                <div class="alert-content">
+                  <div class="alert-title">
+                    {{ (testResult()!.success ? 'EMAIL_SETTINGS.TEST_SUCCESS' : 'EMAIL_SETTINGS.TEST_ERROR') | translate }}
+                  </div>
+                  <div class="alert-message">{{ testResult()!.message }}</div>
+                </div>
+              </div>
+            }
+          </mat-card>
+
+          <!-- Bottom Action Bar -->
+          <div class="bottom-actions-bar">
+            <div class="status-indicator">
+              @if (isConfigured()) {
+                <span class="status-chip chip-active">
+                  <mat-icon>check</mat-icon>
+                  {{ 'EMAIL_SETTINGS.STATUS_CONFIGURED' | translate }}
+                </span>
+                @if (lastUpdated()) {
+                  <span class="updated-hint">
+                    {{ lastUpdated() | date:'medium' }}
+                  </span>
+                }
+              } @else {
+                <span class="status-chip chip-pending">
+                  <mat-icon>info</mat-icon>
+                  {{ 'EMAIL_SETTINGS.STATUS_NOT_CONFIGURED' | translate }}
+                </span>
+              }
+            </div>
+
+            <button
+              type="submit"
+              mat-flat-button
+              color="primary"
+              class="save-btn"
+              [disabled]="saving() || testing()"
+            >
+              @if (saving()) {
+                <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+              } @else {
+                <mat-icon>save</mat-icon>
+              }
+              <span>{{ (saving() ? 'EMAIL_SETTINGS.SAVING' : 'EMAIL_SETTINGS.BTN_SAVE') | translate }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Side: Tips and Docs Column -->
+        <div class="side-column">
+          <mat-card class="tips-card">
+            <div class="tips-header">
+              <mat-icon class="tips-icon">lightbulb</mat-icon>
+              <h3 class="tips-title">{{ 'EMAIL_SETTINGS.DOCS_TITLE' | translate }}</h3>
+            </div>
+
+            <div class="tip-item">
+              <div class="tip-badge">Mailgun</div>
+              <p class="tip-text">{{ 'EMAIL_SETTINGS.DOCS_MAILGUN_TIP' | translate }}</p>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="tip-item">
+              <div class="tip-badge">Gmail / Google</div>
+              <p class="tip-text">{{ 'EMAIL_SETTINGS.DOCS_GMAIL_TIP' | translate }}</p>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="tip-item">
+              <div class="tip-badge">Microsoft 365</div>
+              <p class="tip-text">{{ 'EMAIL_SETTINGS.DOCS_OFFICE_TIP' | translate }}</p>
+            </div>
+          </mat-card>
+        </div>
+      </div>
+    </form>
+  }
+</div>

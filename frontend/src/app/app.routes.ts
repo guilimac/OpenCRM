@@ -92,6 +92,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'settings/email',
+        loadComponent: () =>
+          import('./domains/settings/features/email-settings/email-settings.component').then(
+            (m) => m.EmailSettingsComponent,
+          ),
+      },
+      {
         path: 'profile',
         loadComponent: () =>
           import('./domains/profile/features/profile-view/profile-view.component').then(

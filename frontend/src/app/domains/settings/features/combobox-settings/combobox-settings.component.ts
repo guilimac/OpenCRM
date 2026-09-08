@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -39,6 +40,7 @@ import {
     MatProgressSpinnerModule,
     MatDialogModule,
     MatSnackBarModule,
+    RouterLink,
     TranslatePipe,
   ],
   templateUrl: './combobox-settings.component.html',

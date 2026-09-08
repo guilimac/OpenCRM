@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { ComboboxSettingsComponent } from './combobox-settings.component';
 import { ComboboxOptionsService } from '../../../../core/services/combobox-options.service';
@@ -53,6 +54,7 @@ describe('ComboboxSettingsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [ComboboxSettingsComponent, NoopAnimationsModule],
       providers: [
+        provideRouter([]),
         { provide: ComboboxOptionsService, useValue: comboboxServiceMock },
       ],
     }).compileComponents();

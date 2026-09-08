@@ -114,10 +114,21 @@ import { ChangePasswordDialogComponent } from '../core/auth/features/change-pass
             mat-list-item
             routerLink="/settings"
             routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: true }"
             (click)="isMobile() && drawer.close()"
           >
             <mat-icon matListItemIcon>tune</mat-icon>
             <span matListItemTitle>{{ 'NAV.SETTINGS' | translate }}</span>
+          </a>
+
+          <a
+            mat-list-item
+            routerLink="/settings/email"
+            routerLinkActive="active-link"
+            (click)="isMobile() && drawer.close()"
+          >
+            <mat-icon matListItemIcon>forward_to_inbox</mat-icon>
+            <span matListItemTitle>{{ 'NAV.EMAIL_SETTINGS' | translate }}</span>
           </a>
         </mat-nav-list>
 
