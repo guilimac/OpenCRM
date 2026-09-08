@@ -109,6 +109,16 @@ import { ChangePasswordDialogComponent } from '../core/auth/features/change-pass
             <mat-icon matListItemIcon>inventory_2</mat-icon>
             <span matListItemTitle>{{ 'NAV.PRODUCTS' | translate }}</span>
           </a>
+
+          <a
+            mat-list-item
+            routerLink="/settings"
+            routerLinkActive="active-link"
+            (click)="isMobile() && drawer.close()"
+          >
+            <mat-icon matListItemIcon>tune</mat-icon>
+            <span matListItemTitle>{{ 'NAV.SETTINGS' | translate }}</span>
+          </a>
         </mat-nav-list>
 
         <div class="sidenav-footer">

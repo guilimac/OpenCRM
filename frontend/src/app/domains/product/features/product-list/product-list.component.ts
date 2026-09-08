@@ -14,6 +14,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ProductApiService } from '../../services/product-api.service';
 import { ProductItem } from '../../models/product.model';
 import { ProductDialogComponent } from '../product-dialog/product-dialog.component';
+import { ComboboxOptionsService } from '../../../../core/services/combobox-options.service';
+import { ComboboxCategory } from '../../../settings/models/combobox-settings.model';
 
 @Component({
   selector: 'app-product-list',
@@ -75,11 +77,9 @@ import { ProductDialogComponent } from '../product-dialog/product-dialog.compone
             <mat-label>Categoria</mat-label>
             <mat-select [(ngModel)]="selectedCategory" (selectionChange)="applyFilter()">
               <mat-option value="">Todas as categorias</mat-option>
-              <mat-option value="PRODUTO">Produtos</mat-option>
-              <mat-option value="SERVICO">Serviços</mat-option>
-              <mat-option value="SOFTWARE">Software / SaaS</mat-option>
-              <mat-option value="CONSULTORIA">Consultoria</mat-option>
-              <mat-option value="SUPORTE">Suporte & Manutenção</mat-option>
+              @for (cat of categories(); track cat.id) {
+                <mat-option [value]="cat.value">{{ cat.label }}</mat-option>
+              }
             </mat-select>
           </mat-form-field>
         </div>
@@ -458,6 +458,9 @@ export class ProductListComponent implements OnInit {
   private readonly productApi = inject(ProductApiService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly comboboxService = inject(ComboboxOptionsService);
+
+  readonly categories = this.comboboxService.getOptions(ComboboxCategory.PRODUCT_CATEGORY);
 
   displayedColumns = ['code', 'name', 'category', 'unitPrice', 'status', 'actions'];
 

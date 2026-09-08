@@ -1,0 +1,201 @@
+<div class="settings-container">
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="header-content">
+      <div class="header-icon-box">
+        <mat-icon>tune</mat-icon>
+      </div>
+      <div>
+        <h1 class="page-title">{{ 'SETTINGS.TITLE' | translate }}</h1>
+        <p class="page-subtitle">{{ 'SETTINGS.SUBTITLE' | translate }}</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Category Selection Grid -->
+  <section class="category-grid" aria-label="Categorias de seleção">
+    @for (cat of categoryList; track cat.category) {
+      <div
+        class="category-card"
+        [class.selected]="selectedCategory() === cat.category"
+        (click)="selectCategory(cat.category)"
+      >
+        <div class="cat-icon-box">
+          <mat-icon>{{ cat.icon }}</mat-icon>
+        </div>
+        <div class="cat-info">
+          <h3 class="cat-title">{{ cat.titleKey | translate }}</h3>
+          <p class="cat-desc">{{ cat.descriptionKey | translate }}</p>
+        </div>
+        <div class="cat-badge">
+          <span>{{ getActiveCount(cat.category) }}</span>
+        </div>
+      </div>
+    }
+  </section>
+
+  <!-- Selected Category Management Area -->
+  <mat-card class="options-card">
+    <div class="options-header">
+      <div class="options-title-area">
+        <div class="selected-cat-icon">
+          <mat-icon>{{ currentCategoryMeta()?.icon }}</mat-icon>
+        </div>
+        <div>
+          <h2 class="options-title">{{ (currentCategoryMeta()?.titleKey || '') | translate }}</h2>
+          <p class="options-desc">{{ (currentCategoryMeta()?.descriptionKey || '') | translate }}</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Search -->
+        <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+          <mat-icon matPrefix>search</mat-icon>
+          <input
+            matInput
+            [placeholder]="'COMMON.SEARCH' | translate"
+            [value]="searchTerm()"
+            (input)="onSearchInput($event)"
+          />
+          @if (searchTerm()) {
+            <button mat-icon-button matSuffix (click)="clearSearch()">
+              <mat-icon>clear</mat-icon>
+            </button>
+          }
+        </mat-form-field>
+
+        <!-- Reset to Defaults Button -->
+        <button
+          mat-stroked-button
+          color="warn"
+          class="action-btn"
+          (click)="confirmResetCategory()"
+          [disabled]="loading()"
+        >
+          <mat-icon>restart_alt</mat-icon>
+          {{ 'SETTINGS.RESET_DEFAULTS' | translate }}
+        </button>
+
+        <!-- Add Option Button -->
+        <button
+          mat-flat-button
+          color="primary"
+          class="action-btn"
+          (click)="openAddDialog()"
+          [disabled]="loading()"
+        >
+          <mat-icon>add</mat-icon>
+          {{ 'SETTINGS.ADD_OPTION' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrapper">
+      @if (loading()) {
+        <div class="loading-state">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>{{ 'COMMON.LOADING' | translate }}</p>
+        </div>
+      } @else if (filteredOptions().length === 0) {
+        <div class="empty-state">
+          <mat-icon class="empty-icon">inbox</mat-icon>
+          <h3>{{ 'SETTINGS.NO_OPTIONS_FOUND' | translate }}</h3>
+          <p>{{ 'SETTINGS.NO_OPTIONS_HINT' | translate }}</p>
+          <button mat-flat-button color="primary" (click)="openAddDialog()">
+            <mat-icon>add</mat-icon>
+            {{ 'SETTINGS.ADD_FIRST_OPTION' | translate }}
+          </button>
+        </div>
+      } @else {
+        <table mat-table [dataSource]="filteredOptions()" class="options-table">
+          <!-- Order Column -->
+          <ng-container matColumnDef="orderIndex">
+            <th mat-header-cell *matHeaderCellDef class="th-order">{{ 'SETTINGS.COL_ORDER' | translate }}</th>
+            <td mat-cell *matCellDef="let item" class="td-order">
+              <div class="order-controls">
+                <button
+                  mat-icon-button
+                  class="reorder-btn"
+                  [disabled]="item.orderIndex <= 0"
+                  (click)="moveOrder(item, -1)"
+                  [title]="'SETTINGS.MOVE_UP' | translate"
+                >
+                  <mat-icon>arrow_upward</mat-icon>
+                </button>
+                <span class="order-number">{{ item.orderIndex }}</span>
+                <button
+                  mat-icon-button
+                  class="reorder-btn"
+                  (click)="moveOrder(item, 1)"
+                  [title]="'SETTINGS.MOVE_DOWN' | translate"
+                >
+                  <mat-icon>arrow_downward</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Label Column -->
+          <ng-container matColumnDef="label">
+            <th mat-header-cell *matHeaderCellDef>{{ 'SETTINGS.COL_LABEL' | translate }}</th>
+            <td mat-cell *matCellDef="let item" class="td-label">
+              <span class="label-text" [class.inactive-text]="!item.isActive">{{ item.label }}</span>
+              @if (item.isDefault) {
+                <span class="default-chip">{{ 'SETTINGS.SYSTEM_DEFAULT' | translate }}</span>
+              }
+            </td>
+          </ng-container>
+
+          <!-- Value / Key Column -->
+          <ng-container matColumnDef="value">
+            <th mat-header-cell *matHeaderCellDef>{{ 'SETTINGS.COL_VALUE' | translate }}</th>
+            <td mat-cell *matCellDef="let item" class="td-value">
+              <code class="code-badge">{{ item.value }}</code>
+            </td>
+          </ng-container>
+
+          <!-- Status / Active Toggle Column -->
+          <ng-container matColumnDef="isActive">
+            <th mat-header-cell *matHeaderCellDef class="th-status">{{ 'SETTINGS.COL_STATUS' | translate }}</th>
+            <td mat-cell *matCellDef="let item" class="td-status">
+              <mat-slide-toggle
+                [checked]="item.isActive"
+                color="primary"
+                (change)="toggleActive(item, $event.checked)"
+              >
+                {{ item.isActive ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
+              </mat-slide-toggle>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="th-actions">{{ 'SETTINGS.COL_ACTIONS' | translate }}</th>
+            <td mat-cell *matCellDef="let item" class="td-actions">
+              <button
+                mat-icon-button
+                color="primary"
+                (click)="openEditDialog(item)"
+                [title]="'COMMON.EDIT' | translate"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="confirmDelete(item)"
+                [title]="'COMMON.DELETE' | translate"
+              >
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="option-row"></tr>
+        </table>
+      }
+    </div>
+  </mat-card>
+</div>

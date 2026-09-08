@@ -18,6 +18,8 @@ import { BudgetOrmEntity } from './infrastructure/adapters/secondary/persistence
 import { BudgetItemOrmEntity } from './infrastructure/adapters/secondary/persistence/mysql/entities/budget-item.orm-entity.js';
 import { ProductModule } from './infrastructure/modules/product.module.js';
 import { BudgetModule } from './infrastructure/modules/budget.module.js';
+import { ComboboxOptionOrmEntity } from './infrastructure/adapters/secondary/persistence/mysql/entities/combobox-option.orm-entity.js';
+import { SettingsModule } from './infrastructure/modules/settings.module.js';
 
 @Module({
   imports: [
@@ -46,6 +48,7 @@ import { BudgetModule } from './infrastructure/modules/budget.module.js';
           ProductOrmEntity,
           BudgetOrmEntity,
           BudgetItemOrmEntity,
+          ComboboxOptionOrmEntity,
         ],
         synchronize: config.get<string>('DB_SYNCHRONIZE', 'true') === 'true',
         logging: config.get<string>('DB_LOGGING', 'false') === 'true',
@@ -60,6 +63,7 @@ import { BudgetModule } from './infrastructure/modules/budget.module.js';
     OpportunityModule,
     ProductModule,
     BudgetModule,
+    SettingsModule,
   ],
   controllers: [HealthController],
 })

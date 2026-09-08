@@ -9,6 +9,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ProductItem } from '../../models/product.model';
+import { ComboboxOptionsService } from '../../../../core/services/combobox-options.service';
+import { ComboboxCategory } from '../../../settings/models/combobox-settings.model';
 
 export interface ProductDialogData {
   product?: ProductItem;
@@ -77,11 +79,9 @@ export interface ProductDialogData {
             <mat-form-field appearance="outline">
               <mat-label>Categoria</mat-label>
               <mat-select formControlName="category">
-                <mat-option value="PRODUTO">Produto</mat-option>
-                <mat-option value="SERVICO">Serviço</mat-option>
-                <mat-option value="SOFTWARE">Software / SaaS</mat-option>
-                <mat-option value="CONSULTORIA">Consultoria</mat-option>
-                <mat-option value="SUPORTE">Suporte & Manutenção</mat-option>
+                @for (cat of categories(); track cat.id) {
+                  <mat-option [value]="cat.value">{{ cat.label }}</mat-option>
+                }
               </mat-select>
               <mat-icon matPrefix>category</mat-icon>
             </mat-form-field>
@@ -98,12 +98,9 @@ export interface ProductDialogData {
             <mat-form-field appearance="outline">
               <mat-label>Unidade de Medida</mat-label>
               <mat-select formControlName="unit">
-                <mat-option value="un">Unidade (un)</mat-option>
-                <mat-option value="hora">Hora</mat-option>
-                <mat-option value="mês">Mês</mat-option>
-                <mat-option value="ano">Ano</mat-option>
-                <mat-option value="licença">Licença</mat-option>
-                <mat-option value="projeto">Projeto</mat-option>
+                @for (u of units(); track u.id) {
+                  <mat-option [value]="u.value">{{ u.label }}</mat-option>
+                }
               </mat-select>
               <mat-icon matPrefix>straighten</mat-icon>
             </mat-form-field>
@@ -246,6 +243,10 @@ export class ProductDialogComponent {
   private readonly fb = inject(FormBuilder);
   private readonly dialogRef = inject(MatDialogRef<ProductDialogComponent>);
   private readonly data = inject<ProductDialogData>(MAT_DIALOG_DATA, { optional: true });
+  private readonly comboboxService = inject(ComboboxOptionsService);
+
+  readonly categories = this.comboboxService.getOptions(ComboboxCategory.PRODUCT_CATEGORY);
+  readonly units = this.comboboxService.getOptions(ComboboxCategory.PRODUCT_UNIT);
 
   readonly isEditing = !!this.data?.product;
 

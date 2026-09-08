@@ -84,6 +84,13 @@ export const routes: Routes = [
             (m) => m.BudgetListComponent,
           ),
       },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./domains/settings/features/combobox-settings/combobox-settings.component').then(
+            (m) => m.ComboboxSettingsComponent,
+          ),
+      },
     ],
   },
   {

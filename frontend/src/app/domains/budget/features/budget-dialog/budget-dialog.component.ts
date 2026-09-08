@@ -9,9 +9,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { CustomerApiService } from '../../../customer/services/customer-api.service';
 import { OpportunityApiService } from '../../../opportunity/services/opportunity-api.service';
 import { ProductApiService } from '../../../product/services/product-api.service';
+import { ComboboxOptionsService } from '../../../../core/services/combobox-options.service';
+import { ComboboxCategory } from '../../../settings/models/combobox-settings.model';
 import { CustomerSummary } from '../../../customer/models/customer.model';
 import { OpportunityItem } from '../../../opportunity/models/opportunity.model';
 import { ProductItem } from '../../../product/models/product.model';
@@ -35,6 +38,7 @@ export interface BudgetDialogData {
     MatIconModule,
     MatDividerModule,
     MatTooltipModule,
+    MatAutocompleteModule,
   ],
   template: `
     <div class="budget-dialog-container">
@@ -216,8 +220,14 @@ export interface BudgetDialogData {
                 <input
                   matInput
                   formControlName="paymentTerms"
-                  placeholder="Ex: 30 dias líquido ou 50% na entrada + 50% na entrega"
+                  [matAutocomplete]="autoPaymentTerms"
+                  placeholder="Ex: 30 dias líquido ou escolha da lista"
                 />
+                <mat-autocomplete #autoPaymentTerms="matAutocomplete">
+                  @for (term of paymentTermsOptions(); track term.id) {
+                    <mat-option [value]="term.label">{{ term.label }}</mat-option>
+                  }
+                </mat-autocomplete>
                 <mat-icon matPrefix>credit_card</mat-icon>
               </mat-form-field>
 
@@ -546,6 +556,9 @@ export class BudgetDialogComponent implements OnInit {
   private readonly customerApi = inject(CustomerApiService);
   private readonly opportunityApi = inject(OpportunityApiService);
   private readonly productApi = inject(ProductApiService);
+  private readonly comboboxService = inject(ComboboxOptionsService);
+
+  readonly paymentTermsOptions = this.comboboxService.getOptions(ComboboxCategory.PAYMENT_TERMS);
 
   customers = signal<CustomerSummary[]>([]);
   opportunities = signal<OpportunityItem[]>([]);

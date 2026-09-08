@@ -13,6 +13,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomerApiService } from '../../services/customer-api.service';
 import { CreateCustomerForm } from '../../models/customer.model';
 import { I18nService } from '../../../../core/services/i18n.service';
+import { ComboboxOptionsService } from '../../../../core/services/combobox-options.service';
+import { ComboboxCategory } from '../../../settings/models/combobox-settings.model';
 import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
 
 @Component({
@@ -62,13 +64,9 @@ import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
               <mat-label>{{ 'CUSTOMER.INDUSTRY' | translate }}</mat-label>
               <mat-select formControlName="industry">
                 <mat-option value="">—</mat-option>
-                <mat-option value="Tecnologia">Tecnologia</mat-option>
-                <mat-option value="Financeiro">Financeiro / Bancos</mat-option>
-                <mat-option value="Varejo">Varejo & E-commerce</mat-option>
-                <mat-option value="Agronegócio">Agronegócio</mat-option>
-                <mat-option value="Saúde">Saúde & Farmacêutica</mat-option>
-                <mat-option value="Indústria">Indústria & Manufatura</mat-option>
-                <mat-option value="Serviços">Serviços Corporativos</mat-option>
+                @for (ind of industries(); track ind.id) {
+                  <mat-option [value]="ind.value">{{ ind.label }}</mat-option>
+                }
               </mat-select>
             </mat-form-field>
 
@@ -76,11 +74,9 @@ import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
             <mat-form-field appearance="outline">
               <mat-label>{{ 'CUSTOMER.INITIAL_STATUS' | translate }}</mat-label>
               <mat-select formControlName="status">
-                <mat-option value="LEAD">{{ 'CUSTOMER.STATUS_LEAD' | translate }}</mat-option>
-                <mat-option value="PROSPECT">{{ 'CUSTOMER.STATUS_PROSPECT' | translate }}</mat-option>
-                <mat-option value="ACTIVE_CUSTOMER">{{ 'CUSTOMER.STATUS_ACTIVE_CUSTOMER' | translate }}</mat-option>
-                <mat-option value="CHURNED">{{ 'CUSTOMER.STATUS_CHURNED' | translate }}</mat-option>
-                <mat-option value="INACTIVE">{{ 'CUSTOMER.STATUS_INACTIVE' | translate }}</mat-option>
+                @for (st of statuses(); track st.id) {
+                  <mat-option [value]="st.value">{{ st.label }}</mat-option>
+                }
               </mat-select>
             </mat-form-field>
           </div>
@@ -277,6 +273,10 @@ export class CreateCustomerDialogComponent {
   private readonly customerApi = inject(CustomerApiService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly i18n = inject(I18nService);
+  private readonly comboboxService = inject(ComboboxOptionsService);
+
+  readonly industries = this.comboboxService.getOptions(ComboboxCategory.CUSTOMER_INDUSTRY);
+  readonly statuses = this.comboboxService.getOptions(ComboboxCategory.CUSTOMER_STATUS);
 
   readonly isSubmitting = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
