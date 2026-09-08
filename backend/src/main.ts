@@ -3,9 +3,14 @@ import { AppModule } from './app.module.js';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ProblemDetailsExceptionFilter } from './infrastructure/adapters/primary/rest/filters/http-exception.filter.js';
+import { json, urlencoded } from 'express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bodyParser: false });
+
+  // Increase payload size limits for avatar images and attachments
+  app.use(json({ limit: '10mb' }));
+  app.use(urlencoded({ extended: true, limit: '10mb' }));
 
   // Enable CORS
   app.enableCors({

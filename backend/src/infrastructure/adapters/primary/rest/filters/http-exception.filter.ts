@@ -42,6 +42,10 @@ export class ProblemDetailsExceptionFilter implements ExceptionFilter {
         title = (respObj['error'] as string) || exception.name;
         detail = (respObj['message'] as string | object) || exceptionResponse;
       }
+    } else if (typeof (exception as any)?.status === 'number') {
+      status = (exception as any).status;
+      title = (exception as any).name || 'Http Error';
+      detail = (exception as any).message || 'Http Error';
     } else if (exception instanceof Error) {
       this.logger.error(`Unhandled Exception: ${exception.message}`, exception.stack);
       detail = exception.message;

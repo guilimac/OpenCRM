@@ -130,16 +130,42 @@ export class ProfileViewComponent implements OnInit {
     const file = target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      this.snackBar.open('Arquivo muito grande. Limite máximo: 2MB.', 'OK', { duration: 4000 });
+    if (file.size > 10 * 1024 * 1024) {
+      this.snackBar.open('Arquivo muito grande. Limite máximo: 10MB.', 'OK', { duration: 4000 });
       return;
     }
 
     const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      this.avatarPreview.set(result);
-      this.customUrlInput.set(result);
+    reader.onload = (e) => {
+      const rawResult = e.target?.result as string;
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const size = 256;
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          this.avatarPreview.set(rawResult);
+          this.customUrlInput.set(rawResult);
+          return;
+        }
+
+        const minDim = Math.min(img.width, img.height);
+        const startX = (img.width - minDim) / 2;
+        const startY = (img.height - minDim) / 2;
+
+        ctx.drawImage(img, startX, startY, minDim, minDim, 0, 0, size, size);
+        const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+        this.avatarPreview.set(optimizedDataUrl);
+        this.customUrlInput.set(optimizedDataUrl);
+      };
+      img.onerror = () => {
+        this.avatarPreview.set(rawResult);
+        this.customUrlInput.set(rawResult);
+      };
+      img.src = rawResult;
     };
     reader.readAsDataURL(file);
   }
