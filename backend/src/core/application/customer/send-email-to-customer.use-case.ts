@@ -100,8 +100,9 @@ export class SendEmailToCustomerUseCase {
           .trim()
       : command.body;
 
-    // Dispatch email via Mailgun Email Port
+    // Dispatch email via Mailgun / SMTP Email Port (per org config)
     const emailResult = await this.emailPort.sendEmail({
+      orgId: command.orgId,
       to: resolvedEmail,
       subject: command.subject,
       text: plainText,

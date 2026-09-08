@@ -239,6 +239,7 @@ export class SendMassEmailUseCase {
         : interpolatedBody;
 
       const sendResult = await this.emailPort.sendEmail({
+        orgId: command.orgId,
         to: targetContact.email,
         subject: interpolatedSubject,
         text: plainText,
