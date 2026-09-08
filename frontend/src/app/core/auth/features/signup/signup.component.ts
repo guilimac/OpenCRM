@@ -277,7 +277,7 @@ export class SignupComponent {
       .subscribe({
         next: () => {
           this.isLoading.set(false);
-          this.router.navigate(['/pipeline']);
+          this.router.navigate(['/dashboard']);
         },
         error: (err) => {
           this.isLoading.set(false);

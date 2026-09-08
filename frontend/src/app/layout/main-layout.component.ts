@@ -44,10 +44,10 @@ import { ChangePasswordDialogComponent } from '../core/auth/features/change-pass
         role="navigation"
         aria-label="Navegação Principal"
       >
-        <div class="brand-bar flex-row gap-sm align-center">
+        <a routerLink="/dashboard" class="brand-bar flex-row gap-sm align-center">
           <img src="/images/opencrm-logo.png" alt="OpenCRM Logo" class="brand-logo-img" />
           <span class="brand-text">OpenCRM</span>
-        </div>
+        </a>
 
         <mat-nav-list class="nav-list">
           <a
@@ -231,6 +231,9 @@ import { ChangePasswordDialogComponent } from '../core/auth/features/change-pass
       border-bottom: 1px solid #f1f5f9;
       display: flex;
       align-items: center;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
     }
     :host-context(.dark-theme) .brand-bar {
       border-bottom-color: #334155;
