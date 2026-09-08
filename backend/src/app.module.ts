@@ -19,6 +19,7 @@ import { BudgetItemOrmEntity } from './infrastructure/adapters/secondary/persist
 import { ProductModule } from './infrastructure/modules/product.module.js';
 import { BudgetModule } from './infrastructure/modules/budget.module.js';
 import { ComboboxOptionOrmEntity } from './infrastructure/adapters/secondary/persistence/mysql/entities/combobox-option.orm-entity.js';
+import { EmailConfigOrmEntity } from './infrastructure/adapters/secondary/persistence/mysql/entities/email-config.orm-entity.js';
 import { SettingsModule } from './infrastructure/modules/settings.module.js';
 
 @Module({
@@ -49,6 +50,7 @@ import { SettingsModule } from './infrastructure/modules/settings.module.js';
           BudgetOrmEntity,
           BudgetItemOrmEntity,
           ComboboxOptionOrmEntity,
+          EmailConfigOrmEntity,
         ],
         synchronize: config.get<string>('DB_SYNCHRONIZE', 'true') === 'true',
         logging: config.get<string>('DB_LOGGING', 'false') === 'true',

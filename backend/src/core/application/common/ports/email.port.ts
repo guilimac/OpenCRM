@@ -15,6 +15,7 @@ export interface SendEmailOptions {
   from?: string;
   replyTo?: string;
   attachments?: EmailAttachment[];
+  orgId?: string;
 }
 
 export const EMAIL_PORT = Symbol('EMAIL_PORT');
